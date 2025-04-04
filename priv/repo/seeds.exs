@@ -214,3 +214,61 @@ Repo.insert!(%Reaction{
   user_id: maria.id,
   post_id: post4.id
 })
+
+# Create sample events
+alias YoungvisionPlatform.Community.Event
+
+# Current month events
+current_month = Date.utc_today() |> Date.beginning_of_month()
+
+# Community Workshop event
+Repo.insert!(%Event{
+  title: "Community Workshop: Sustainable Living",
+  description: "Join us for a hands-on workshop about sustainable living practices. We'll cover topics like reducing waste, energy conservation, and sustainable food choices. Bring a notebook and your enthusiasm!",
+  location: "EcoHub Berlin, Prenzlauer Berg",
+  start_time: current_month |> Date.add(10) |> DateTime.new!(~T[14:00:00], "Etc/UTC"),
+  end_time: current_month |> Date.add(10) |> DateTime.new!(~T[17:00:00], "Etc/UTC"),
+  user_id: jonas.id
+})
+
+# Networking event
+Repo.insert!(%Event{
+  title: "Young Professionals Networking",
+  description: "An evening of networking and knowledge sharing for young professionals interested in sustainability and social impact. Light refreshments will be provided.",
+  location: "Impact Hub Munich, Goetheplatz 8",
+  start_time: current_month |> Date.add(15) |> DateTime.new!(~T[18:30:00], "Etc/UTC"),
+  end_time: current_month |> Date.add(15) |> DateTime.new!(~T[21:00:00], "Etc/UTC"),
+  user_id: maria.id
+})
+
+# Volunteer day
+Repo.insert!(%Event{
+  title: "Community Garden Volunteer Day",
+  description: "Help us maintain and expand our community garden! No experience necessary, tools and guidance will be provided. This is a great opportunity to learn about urban gardening while making a positive impact in our community.",
+  location: "Stadtgarten Hamburg, Altona",
+  start_time: current_month |> Date.add(20) |> DateTime.new!(~T[10:00:00], "Etc/UTC"),
+  end_time: current_month |> Date.add(20) |> DateTime.new!(~T[14:00:00], "Etc/UTC"),
+  user_id: thomas.id
+})
+
+# Book club meeting
+Repo.insert!(%Event{
+  title: "Environmental Book Club",
+  description: "This month we're discussing 'Braiding Sweetgrass' by Robin Wall Kimmerer. Join us even if you haven't finished the book - we welcome all perspectives and levels of participation.",
+  location: "Buchhandlung Ludwig, Cologne",
+  start_time: current_month |> Date.add(25) |> DateTime.new!(~T[19:00:00], "Etc/UTC"),
+  end_time: current_month |> Date.add(25) |> DateTime.new!(~T[21:00:00], "Etc/UTC"),
+  user_id: lisa.id
+})
+
+# Next month event
+next_month = current_month |> Date.add(35) |> Date.beginning_of_month()
+
+Repo.insert!(%Event{
+  title: "Annual Community Gathering",
+  description: "Our biggest event of the year! Join us for a day of workshops, discussions, and community building. We'll have speakers from various environmental and social justice organizations, interactive sessions, and plenty of opportunities to connect with like-minded individuals.",
+  location: "Kulturzentrum, Berlin Mitte",
+  start_time: next_month |> Date.add(5) |> DateTime.new!(~T[09:00:00], "Etc/UTC"),
+  end_time: next_month |> Date.add(5) |> DateTime.new!(~T[18:00:00], "Etc/UTC"),
+  user_id: jonas.id
+})

@@ -254,6 +254,146 @@ defmodule YoungvisionPlatform.Community do
     |> Repo.one()
   end
 
+  # Event-related functions
+  alias YoungvisionPlatform.Community.Event
+
+  @doc """
+  Returns the list of events.
+
+  ## Examples
+
+      iex> list_events()
+      [%Event{}, ...]
+
+  """
+  def list_events do
+    Repo.all(from e in Event, order_by: [asc: e.start_time], preload: [:user])
+  end
+
+  @doc """
+  Returns the list of events within a date range.
+
+  ## Examples
+
+      iex> list_events_in_range(~U[2025-04-01 00:00:00Z], ~U[2025-04-30 23:59:59Z])
+      [%Event{}, ...]
+
+  """
+  def list_events_in_range(start_date, end_date) do
+    Repo.all(
+      from e in Event,
+      where: e.start_time >= ^start_date and e.start_time <= ^end_date,
+      order_by: [asc: e.start_time],
+      preload: [:user]
+    )
+  end
+
+  @doc """
+  Gets a single event.
+
+  Raises `Ecto.NoResultsError` if the Event does not exist.
+
+  ## Examples
+
+      iex> get_event!(123)
+      %Event{}
+
+      iex> get_event!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_event!(id) do
+    event = Repo.get!(Event, id) |> Repo.preload(:user)
+    IO.inspect(event, label: "Event in get_event!")
+    IO.inspect(event.user, label: "User in get_event!")
+    event
+  end
+
+  @doc """
+  Creates an event associated with a user.
+
+  ## Examples
+
+      iex> create_event(user, %{field: value})
+      {:ok, %Event{}}
+
+      iex> create_event(user, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_event(user, attrs \\ %{}) do
+    IO.inspect(user, label: "User in create_event")
+    attrs_with_user = Map.put(attrs, "user_id", user.id)
+    IO.inspect(attrs_with_user, label: "Attrs with user_id")
+    
+    # Create the event with the user directly associated
+    %Event{user: user}
+    |> Event.changeset(attrs_with_user)
+    |> Repo.insert()
+    |> case do
+      {:ok, event} -> 
+        # Force a reload with the user preloaded to ensure it's available
+        preloaded = Repo.get!(Event, event.id) |> Repo.preload(:user)
+        IO.inspect(preloaded, label: "Preloaded event")
+        IO.inspect(preloaded.user, label: "Preloaded event user")
+        {:ok, preloaded}
+      error -> 
+        IO.inspect(error, label: "Error in create_event")
+        error
+    end
+  end
+
+  @doc """
+  Updates an event.
+
+  ## Examples
+
+      iex> update_event(event, %{field: new_value})
+      {:ok, %Event{}}
+
+      iex> update_event(event, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_event(%Event{} = event, attrs) do
+    event
+    |> Event.changeset(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, event} -> {:ok, Repo.preload(event, :user)}
+      error -> error
+    end
+  end
+
+  @doc """
+  Deletes an event.
+
+  ## Examples
+
+      iex> delete_event(event)
+      {:ok, %Event{}}
+
+      iex> delete_event(event)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_event(%Event{} = event) do
+    Repo.delete(event)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking event changes.
+
+  ## Examples
+
+      iex> change_event(event)
+      %Ecto.Changeset{data: %Event{}}
+
+  """
+  def change_event(%Event{} = event, attrs \\ %{}) do
+    Event.changeset(event, attrs)
+  end
+
   @doc """
   Creates a reaction associated with a user and post.
 
