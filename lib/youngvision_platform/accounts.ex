@@ -225,6 +225,15 @@ defmodule YoungvisionPlatform.Accounts do
   def list_users_with_location do
     User
     |> where([u], not is_nil(u.location))
+    |> select([u], %{
+      id: u.id,
+      display_name: u.display_name,
+      location: u.location,
+      latitude: u.latitude,
+      longitude: u.longitude,
+      profile_picture: u.profile_picture,
+      email: u.email  # Include email for DiceBear avatar generation
+    })
     |> Repo.all()
   end
 

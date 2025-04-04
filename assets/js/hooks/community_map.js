@@ -53,7 +53,7 @@ const CommunityMap = {
           marker.bindPopup(`
             <div class="flex items-center mb-2">
               <div class="w-10 h-10 rounded-full overflow-hidden mr-2 flex-shrink-0">
-                <img src="${user.profile_picture ? `/uploads/profile_pictures/${user.profile_picture}` : `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(user.email)}`}" 
+                <img src="${user.profile_picture_url}" 
                      alt="${user.display_name}'s profile picture" 
                      class="w-full h-full object-cover" />
               </div>

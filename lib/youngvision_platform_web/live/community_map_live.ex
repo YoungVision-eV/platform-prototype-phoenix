@@ -1,11 +1,17 @@
 defmodule YoungvisionPlatformWeb.CommunityMapLive do
   use YoungvisionPlatformWeb, :live_view
   alias YoungvisionPlatform.Accounts
+  alias YoungvisionPlatform.Accounts.ProfilePictureHelper
 
   def mount(_params, _session, socket) do
     users_with_location = Accounts.list_users_with_location()
     
-    {:ok, assign(socket, users: users_with_location)}
+    # Add profile picture URLs to each user
+    users_with_profile_pics = Enum.map(users_with_location, fn user ->
+      Map.put(user, :profile_picture_url, ProfilePictureHelper.profile_picture_url(user))
+    end)
+    
+    {:ok, assign(socket, users: users_with_profile_pics)}
   end
 
   def render(assigns) do
