@@ -49,12 +49,21 @@ const CommunityMap = {
             this.map
           );
 
-          // Add a popup with user info and link to profile
+          // Add a popup with user info, profile picture, and link to profile
           marker.bindPopup(`
-            <a href="/users/${user.id}" class="font-bold text-orange-600 hover:underline">
-              ${user.display_name}
-            </a>
-            <p>${user.location}</p>
+            <div class="flex items-center mb-2">
+              <div class="w-10 h-10 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                <img src="${user.profile_picture ? `/uploads/profile_pictures/${user.profile_picture}` : `https://api.dicebear.com/9.x/fun-emoji/svg?seed=${encodeURIComponent(user.email)}`}" 
+                     alt="${user.display_name}'s profile picture" 
+                     class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <a href="/users/${user.id}" class="font-bold text-orange-600 hover:underline">
+                  ${user.display_name}
+                </a>
+                <p class="text-sm">${user.location}</p>
+              </div>
+            </div>
           `);
         }
       });

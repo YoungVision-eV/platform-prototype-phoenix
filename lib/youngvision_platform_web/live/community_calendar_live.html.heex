@@ -59,10 +59,19 @@
               </div>
               <div class="mt-1 space-y-1 max-h-[80px] overflow-y-auto">
                 <%= for event <- day_events do %>
-                  <.link patch={~p"/community/calendar/#{event.id}"} class="block p-1 text-xs rounded bg-blue-100 hover:bg-blue-200 truncate">
-                    <span class="font-medium"><%= event.title %></span>
-                    <div class="text-xs text-gray-600">
-                      <%= Calendar.strftime(event.start_time, "%H:%M") %>
+                  <.link patch={~p"/community/calendar/#{event.id}"} class="block p-1 text-xs rounded bg-blue-100 hover:bg-blue-200">
+                    <div class="flex items-center">
+                      <div class="w-5 h-5 rounded-full overflow-hidden mr-1 flex-shrink-0">
+                        <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(event.user)} 
+                             alt="#{event.user.display_name}'s profile picture" 
+                             class="w-full h-full object-cover" />
+                      </div>
+                      <div class="truncate">
+                        <span class="font-medium"><%= event.title %></span>
+                        <div class="text-xs text-gray-600">
+                          <%= Calendar.strftime(event.start_time, "%H:%M") %>
+                        </div>
+                      </div>
                     </div>
                   </.link>
                 <% end %>
@@ -128,12 +137,21 @@
         </.header>
         <div class="py-4">
           <div class="mb-4">
-            <p class="text-sm text-gray-500">
-              Posted by 
-              <.link navigate={~p"/users/#{@selected_event.user.id}"} class="text-orange-500 hover:underline">
-                <%= @selected_event.user.display_name %>
-              </.link>
-            </p>
+            <div class="flex items-center mb-3">
+              <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@selected_event.user)} 
+                     alt="#{@selected_event.user.display_name}'s profile picture" 
+                     class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <p class="text-sm text-gray-500">
+                  Posted by 
+                  <.link navigate={~p"/users/#{@selected_event.user.id}"} class="text-orange-500 hover:underline">
+                    <%= @selected_event.user.display_name %>
+                  </.link>
+                </p>
+              </div>
+            </div>
             <p class="text-sm text-gray-500">
               <%= Calendar.strftime(@selected_event.start_time, "%A, %B %d, %Y at %H:%M") %> - 
               <%= Calendar.strftime(@selected_event.end_time, "%A, %B %d, %Y at %H:%M") %>

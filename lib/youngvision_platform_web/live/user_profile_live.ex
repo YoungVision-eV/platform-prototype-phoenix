@@ -3,6 +3,7 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
 
   alias YoungvisionPlatform.Accounts
   alias YoungvisionPlatform.Community
+  alias YoungvisionPlatform.Accounts.ProfilePictureHelper
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -24,6 +25,10 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
       |> assign(:is_current_user, is_current_user)
       |> assign(:posts, posts)
       |> assign(:profile_form, to_form(%{}))
+      |> allow_upload(:profile_picture, 
+          accept: ~w(.jpg .jpeg .png .webp), 
+          max_entries: 1,
+          max_file_size: 5_000_000) # 5MB limit
     }
   end
 
@@ -55,6 +60,11 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
   end
 
   @impl true
+  def handle_event("validate", _params, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("save-profile", %{"user" => profile_params}, socket) do
     # Only allow saving if it's the current user's profile
     if socket.assigns.is_current_user do
@@ -73,6 +83,38 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
         # If location is empty, clear the coordinates
         Map.merge(profile_params, %{"latitude" => nil, "longitude" => nil})
       end
+      
+      # Process uploaded profile picture if any
+      profile_params = 
+        case uploaded_entries(socket, :profile_picture) do
+          [] -> 
+            # No new upload, keep existing profile picture
+            profile_params
+          entries -> 
+            # Process the uploaded file(s)
+            uploaded_filename = 
+              consume_uploaded_entries(socket, :profile_picture, fn %{path: path}, entry ->
+                # Get file extension from the original file
+                extension = Path.extname(entry.client_name)
+                
+                # Create a unique filename with timestamp and user ID
+                # Format: user_id_timestamp.extension
+                filename = "user_#{socket.assigns.current_user.id}_#{System.os_time()}#{extension}"
+                dest = Path.join(["uploads", "profile_pictures", filename])
+                
+                # Ensure directory exists
+                File.mkdir_p!(Path.dirname(dest))
+                
+                # Copy the file
+                File.cp!(path, dest)
+                
+                # Return the filename to be stored in the database
+                {:ok, filename}
+              end) |> List.first()
+              
+            # Add the filename to the profile params
+            Map.put(profile_params, "profile_picture", uploaded_filename)
+        end
       
       case Accounts.update_user_profile(socket.assigns.current_user, profile_params) do
         {:ok, user} ->
@@ -107,4 +149,13 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
       }
     end
   end
+  
+  @impl true
+  def handle_event("cancel-upload", %{"ref" => ref}, socket) do
+    {:noreply, cancel_upload(socket, :profile_picture, ref)}
+  end
+  
+  defp error_to_string(:too_large), do: "File is too large (max 5MB)"
+  defp error_to_string(:not_accepted), do: "Unacceptable file type (only JPG, PNG, and WebP allowed)"
+  defp error_to_string(:too_many_files), do: "Too many files selected (max 1)"
 end

@@ -41,11 +41,18 @@
         <div id={"post-#{post.id}"} class="bg-white shadow rounded-lg overflow-hidden">
           <div class="p-6">
             <div class="flex items-center mb-4">
-              <.link navigate={~p"/users/#{post.user.id}"} class="font-medium text-gray-900 hover:text-orange-600">
-                <%= if post.user, do: post.user.display_name, else: "User" %>
-              </.link>
-              <div class="text-sm text-gray-500 ml-2">
-                <%= Calendar.strftime(post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+              <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(post.user)} 
+                     alt="#{post.user.display_name}'s profile picture" 
+                     class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <.link navigate={~p"/users/#{post.user.id}"} class="font-medium text-gray-900 hover:text-orange-600">
+                  <%= if post.user, do: post.user.display_name, else: "User" %>
+                </.link>
+                <div class="text-sm text-gray-500">
+                  <%= Calendar.strftime(post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+                </div>
               </div>
             </div>
             <.link navigate={~p"/posts/#{post.id}"} class="hover:text-blue-700">
@@ -81,11 +88,18 @@
             <%= if length(post.comments) > 0 do %>
               <div class="mt-4">
                 <% latest_comment = List.first(Enum.sort_by(post.comments, & &1.inserted_at, {:desc, DateTime})) %>
-                <div id={"comment-#{latest_comment.id}"} class="flex">
-                  <.link navigate={~p"/users/#{latest_comment.user.id}"} class="mr-3 font-medium hover:text-orange-600">
-                    <%= if latest_comment.user, do: latest_comment.user.display_name, else: "User" %>:
-                  </.link>
-                  <div><%= latest_comment.content %></div>
+                <div id={"comment-#{latest_comment.id}"} class="flex items-start">
+                  <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                    <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(latest_comment.user)} 
+                         alt="#{latest_comment.user.display_name}'s profile picture" 
+                         class="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <.link navigate={~p"/users/#{latest_comment.user.id}"} class="font-medium hover:text-orange-600">
+                      <%= if latest_comment.user, do: latest_comment.user.display_name, else: "User" %>:
+                    </.link>
+                    <div><%= latest_comment.content %></div>
+                  </div>
                 </div>
               </div>
             <% end %>
@@ -100,11 +114,18 @@
     <div id={"post-#{@post.id}"} class="bg-white shadow rounded-lg overflow-hidden">
       <div class="p-6">
         <div class="flex items-center mb-4">
-          <.link navigate={~p"/users/#{@post.user.id}"} class="font-medium text-gray-900 hover:text-orange-600">
-            <%= if @post.user, do: @post.user.display_name, else: "User" %>
-          </.link>
-          <div class="text-sm text-gray-500 ml-2">
-            <%= Calendar.strftime(@post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+          <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+            <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@post.user)} 
+                 alt="#{@post.user.display_name}'s profile picture" 
+                 class="w-full h-full object-cover" />
+          </div>
+          <div>
+            <.link navigate={~p"/users/#{@post.user.id}"} class="font-medium text-gray-900 hover:text-orange-600">
+              <%= if @post.user, do: @post.user.display_name, else: "User" %>
+            </.link>
+            <div class="text-sm text-gray-500">
+              <%= Calendar.strftime(@post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+            </div>
           </div>
         </div>
         <h2 class="text-xl font-semibold mb-2"><%= @post.title %></h2>
@@ -134,11 +155,18 @@
         <h3 class="text-lg font-semibold mb-4">Comments</h3>
         <div class="space-y-4" id="post-comments">
           <%= for comment <- Enum.sort_by(@post.comments, & &1.inserted_at, :asc) do %>
-            <div id={"comment-#{comment.id}"} class="flex">
-              <.link navigate={~p"/users/#{comment.user.id}"} class="mr-3 font-medium hover:text-orange-600">
-                <%= if comment.user, do: comment.user.display_name, else: "User" %>:
-              </.link>
-              <div><%= comment.content %></div>
+            <div id={"comment-#{comment.id}"} class="flex items-start">
+              <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0">
+                <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(comment.user)} 
+                     alt="#{comment.user.display_name}'s profile picture" 
+                     class="w-full h-full object-cover" />
+              </div>
+              <div>
+                <.link navigate={~p"/users/#{comment.user.id}"} class="font-medium hover:text-orange-600">
+                  <%= if comment.user, do: comment.user.display_name, else: "User" %>:
+                </.link>
+                <div><%= comment.content %></div>
+              </div>
             </div>
           <% end %>
         </div>

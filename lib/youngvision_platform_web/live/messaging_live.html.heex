@@ -37,8 +37,15 @@
               ]}
             >
               <div class="flex justify-between items-start">
-                <div class={["font-medium", if(is_unread, do: "font-bold")]}>
-                  <%= other_user.display_name %>
+                <div class="flex items-center">
+                  <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                    <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(other_user)} 
+                         alt="#{other_user.display_name}'s profile picture" 
+                         class="w-full h-full object-cover" />
+                  </div>
+                  <div class={["font-medium", if(is_unread, do: "font-bold")]}>
+                    <%= other_user.display_name %>
+                  </div>
                 </div>
                 <div class="text-xs text-gray-500">
                   <%= format_time(message.inserted_at) %>
@@ -61,6 +68,11 @@
       <%= if @selected_conversation do %>
         <!-- Conversation header -->
         <div class="p-4 border-b border-gray-200 flex items-center">
+          <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
+            <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@selected_conversation)} 
+                 alt="#{@selected_conversation.display_name}'s profile picture" 
+                 class="w-full h-full object-cover" />
+          </div>
           <.link navigate={~p"/users/#{@selected_conversation.id}"} class="font-medium text-lg text-orange-500 hover:underline">
             <%= @selected_conversation.display_name %>
           </.link>
@@ -70,8 +82,19 @@
         <div class="flex-1 p-4 overflow-y-auto" id="messages-container" phx-hook="ScrollToBottom">
           <%= for message <- @messages do %>
             <div id={"message-#{message.id}"} class={[
-              "mb-4 max-w-[70%] p-3 rounded-lg",
-              if(message.sender_id == @current_user.id, do: "ml-auto bg-blue-500 text-white", else: "bg-gray-200")
+              "mb-4 max-w-[70%]",
+              if(message.sender_id == @current_user.id, do: "ml-auto", else: "flex")
+            ]}>
+            <%= if message.sender_id != @current_user.id do %>
+              <div class="w-8 h-8 rounded-full overflow-hidden mr-2 flex-shrink-0 self-end">
+                <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(message.sender)} 
+                     alt="#{message.sender.display_name}'s profile picture" 
+                     class="w-full h-full object-cover" />
+              </div>
+            <% end %>
+            <div class={[
+              "p-3 rounded-lg",
+              if(message.sender_id == @current_user.id, do: "bg-blue-500 text-white", else: "bg-gray-200")
             ]}>
               <div class="text-sm"><%= message.content %></div>
               <div class={["text-xs mt-1", if(message.sender_id == @current_user.id, do: "text-blue-200", else: "text-gray-500")]}>
@@ -83,6 +106,7 @@
                 <% end %>
               </div>
             </div>
+          </div>
           <% end %>
         </div>
         
@@ -138,8 +162,17 @@
               patch={~p"/messages/#{user.id}"}
               class="block p-3 border-b border-gray-200 hover:bg-gray-100 transition-colors"
             >
-                <div class="font-medium"><%= user.display_name %></div>
-              <div class="text-sm text-gray-600"><%= user.email %></div>
+              <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                  <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(user)} 
+                       alt="#{user.display_name}'s profile picture" 
+                       class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <div class="font-medium"><%= user.display_name %></div>
+                  <div class="text-sm text-gray-600"><%= user.email %></div>
+                </div>
+              </div>
             </.link>
           <% end %>
         <% else %>
