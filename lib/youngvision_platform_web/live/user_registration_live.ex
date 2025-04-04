@@ -6,7 +6,7 @@ defmodule YoungvisionPlatformWeb.UserRegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
+    <div class="mx-auto max-w-sm mt-8">
       <.header class="text-center">
         Register for an account
         <:subtitle>
@@ -26,6 +26,7 @@ defmodule YoungvisionPlatformWeb.UserRegistrationLive do
         phx-trigger-action={@trigger_submit}
         action={~p"/users/log_in?_action=registered"}
         method="post"
+        class="p-6 rounded-lg border border-orange-100 shadow-sm"
       >
         <.error :if={@check_errors}>
           Oops, something went wrong! Please check the errors below.

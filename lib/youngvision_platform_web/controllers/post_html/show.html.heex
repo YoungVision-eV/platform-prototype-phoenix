@@ -57,7 +57,7 @@
   <% else %>
     <div class="space-y-4">
       <%= for comment <- @post.comments do %>
-        <div class="p-4 bg-orange-50 rounded-lg border border-orange-100">
+        <div class="p-4 bg-orange-100 rounded-lg border border-orange-100">
           <div class="flex justify-between items-start">
             <div class="font-medium">{comment.user.display_name}</div>
             <div class="text-xs text-gray-500">{Calendar.strftime(comment.inserted_at, "%d %b %Y, %H:%M")}</div>

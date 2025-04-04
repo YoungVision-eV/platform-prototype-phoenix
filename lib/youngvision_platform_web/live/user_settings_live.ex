@@ -17,6 +17,7 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
           id="email_form"
           phx-submit="update_email"
           phx-change="validate_email"
+          class="bg-orange-100 p-6 rounded-lg border border-orange-100 shadow-sm"
         >
           <.input field={@email_form[:email]} type="email" label="Email" required />
           <.input
@@ -42,6 +43,7 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
           phx-change="validate_password"
           phx-submit="update_password"
           phx-trigger-action={@trigger_submit}
+          class="bg-orange-100 p-6 rounded-lg border border-orange-100 shadow-sm"
         >
           <input
             name={@password_form[:email].name}
