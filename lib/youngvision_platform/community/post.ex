@@ -10,6 +10,8 @@ defmodule YoungvisionPlatform.Community.Post do
 
     # Add association to users
     belongs_to :user, YoungvisionPlatform.Accounts.User
+    # Add association to comments
+    has_many :comments, YoungvisionPlatform.Community.Comment
 
     timestamps(type: :utc_datetime)
   end

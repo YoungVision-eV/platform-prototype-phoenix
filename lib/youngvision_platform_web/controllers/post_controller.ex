@@ -5,7 +5,7 @@ defmodule YoungvisionPlatformWeb.PostController do
 
   alias YoungvisionPlatform.Community
   alias YoungvisionPlatform.Community.Post
-  alias YoungvisionPlatform.Accounts
+  alias YoungvisionPlatform.Community.Comment
 
   # Require authentication for all actions in this controller
   plug :require_authenticated_user
@@ -37,6 +37,22 @@ defmodule YoungvisionPlatformWeb.PostController do
 
   def show(conn, %{"id" => id}) do
     post = Community.get_post!(id)
-    render(conn, :show, post: post)
+    comment_changeset = Community.change_comment(%Comment{})
+    render(conn, :show, post: post, comment_changeset: comment_changeset)
+  end
+
+  def add_comment(conn, %{"post_id" => post_id, "comment" => comment_params}) do
+    post = Community.get_post!(post_id)
+    current_user = conn.assigns.current_user
+
+    case Community.create_comment(current_user, post, comment_params) do
+      {:ok, _comment} ->
+        conn
+        |> put_flash(:info, "Comment added successfully.")
+        |> redirect(to: ~p"/posts/#{post}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, :show, post: post, comment_changeset: changeset)
+    end
   end
 end

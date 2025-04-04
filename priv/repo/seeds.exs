@@ -49,30 +49,85 @@ Repo.delete_all("users")
   })
 
 # Create sample posts associated with users
-Repo.insert!(%Post{
+post1 = Repo.insert!(%Post{
   title: "Welcome to our Community Platform!",
   content:
     "Hello everyone! I'm excited to launch this community platform for our group. This is a space for us to stay connected between our real-life events across Germany. Feel free to share updates, ideas, and anything else you'd like to discuss with the community.",
   user_id: jonas.id
 })
 
-Repo.insert!(%Post{
+post2 = Repo.insert!(%Post{
   title: "Next Meetup in Berlin",
   content:
     "I'm organizing our next meetup in Berlin on May 15th. We'll meet at Mauerpark at 14:00. Please let me know if you can make it! I'm thinking we could have a picnic if the weather is nice, otherwise we can move to a nearby café.",
   user_id: maria.id
 })
 
-Repo.insert!(%Post{
+post3 = Repo.insert!(%Post{
   title: "Photo Gallery from Munich Event",
   content:
     "I've uploaded all the photos from our Munich event last month to our shared drive. There are some great moments captured there! Check them out when you have time and feel free to add your own photos if you took any.",
   user_id: thomas.id
 })
 
-Repo.insert!(%Post{
+post4 = Repo.insert!(%Post{
   title: "Book Club Suggestion",
   content:
     "Has anyone read 'Klara and the Sun' by Kazuo Ishiguro? I just finished it and think it would make for a great discussion at our next virtual book club. Let me know your thoughts or if you have other book suggestions!",
   user_id: lisa.id
+})
+
+# Create sample comments
+alias YoungvisionPlatform.Community.Comment
+
+# Comments for the welcome post
+Repo.insert!(%Comment{
+  content: "This is exactly what we needed! Thanks for setting this up.",
+  user_id: maria.id,
+  post_id: post1.id
+})
+
+Repo.insert!(%Comment{
+  content: "Looking forward to connecting with everyone here!",
+  user_id: thomas.id,
+  post_id: post1.id
+})
+
+# Comments for the Berlin meetup post
+Repo.insert!(%Comment{
+  content: "I'll be there! Can't wait to see everyone.",
+  user_id: jonas.id,
+  post_id: post2.id
+})
+
+Repo.insert!(%Comment{
+  content: "I might be running a bit late, but I'll definitely join.",
+  user_id: lisa.id,
+  post_id: post2.id
+})
+
+Repo.insert!(%Comment{
+  content: "Should we bring anything for the picnic?",
+  user_id: thomas.id,
+  post_id: post2.id
+})
+
+# Comments for the photo gallery post
+Repo.insert!(%Comment{
+  content: "The photos are amazing! Thanks for sharing.",
+  user_id: lisa.id,
+  post_id: post3.id
+})
+
+# Comments for the book club post
+Repo.insert!(%Comment{
+  content: "I've read it and loved it! Great suggestion.",
+  user_id: maria.id,
+  post_id: post4.id
+})
+
+Repo.insert!(%Comment{
+  content: "I haven't read it yet, but I'd be interested in joining the book club.",
+  user_id: jonas.id,
+  post_id: post4.id
 })

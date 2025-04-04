@@ -18,3 +18,33 @@
     {@post.content}
   </div>
 </div>
+
+<div class="mt-10">
+  <h2 class="text-xl font-semibold mb-4">Comments</h2>
+  
+  <%= if Enum.empty?(@post.comments) do %>
+    <p class="text-gray-500 italic">No comments yet. Be the first to comment!</p>
+  <% else %>
+    <div class="space-y-4">
+      <%= for comment <- @post.comments do %>
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <div class="flex justify-between items-start">
+            <div class="font-medium">{comment.user.display_name}</div>
+            <div class="text-xs text-gray-500">{Calendar.strftime(comment.inserted_at, "%d %b %Y, %H:%M")}</div>
+          </div>
+          <div class="mt-2">{comment.content}</div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <div class="mt-6">
+    <h3 class="text-lg font-medium mb-3">Add a comment</h3>
+    <.simple_form :let={f} for={@comment_changeset} action={~p"/posts/#{@post.id}/comments"} id="comment-form">
+      <.input field={f[:content]} type="textarea" label="Your comment" required rows={3} />
+      <:actions>
+        <.button>Post comment</.button>
+      </:actions>
+    </.simple_form>
+  </div>
+</div>

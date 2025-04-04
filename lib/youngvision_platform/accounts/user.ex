@@ -10,6 +10,10 @@ defmodule YoungvisionPlatform.Accounts.User do
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
 
+    # Add associations
+    has_many :posts, YoungvisionPlatform.Community.Post
+    has_many :comments, YoungvisionPlatform.Community.Comment
+
     timestamps(type: :utc_datetime)
   end
 
