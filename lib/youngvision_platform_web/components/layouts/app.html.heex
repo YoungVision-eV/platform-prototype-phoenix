@@ -32,18 +32,27 @@
             </a>
           </li>
           <li class="ml-4 flex items-center">
-            <div class="relative group">
-              <button class="flex items-center gap-1 hover:text-zinc-700">
+            <div class="relative" id="user-menu" phx-hook="UserMenu">
+              <button 
+                class="flex items-center gap-1 hover:text-zinc-700 focus:outline-none"
+                id="user-menu-button"
+                aria-expanded="false"
+                aria-haspopup="true"
+                phx-click={JS.toggle(to: "#user-menu-dropdown")}
+              >
                 <span>Hello, {@current_user.display_name}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
-              <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                <.link href="/users/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+              <div 
+                id="user-menu-dropdown"
+                class="absolute right-0 mt-2 w-48 bg-orange-50 rounded-md shadow-lg py-1 z-10 hidden border border-orange-100"
+              >
+                <.link href="/users/settings" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
                   Settings
                 </.link>
-                <.link href="/users/log_out" method="delete" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <.link href="/users/log_out" method="delete" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
                   Log out
                 </.link>
               </div>

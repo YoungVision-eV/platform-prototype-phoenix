@@ -22,12 +22,13 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import CommunityMap from "./hooks/community_map"
+import UserMenu from "./hooks/user_menu"
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: { CommunityMap }
+  hooks: { CommunityMap, UserMenu }
 })
 
 // Show progress bar on live navigation and form submits
