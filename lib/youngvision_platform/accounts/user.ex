@@ -2,7 +2,7 @@ defmodule YoungvisionPlatform.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
   
-  @derive {Jason.Encoder, only: [:id, :display_name, :location, :latitude, :longitude]}
+  @derive {Jason.Encoder, only: [:id, :display_name, :location, :latitude, :longitude, :pronouns, :bio]}
 
   schema "users" do
     field :email, :string
@@ -16,6 +16,10 @@ defmodule YoungvisionPlatform.Accounts.User do
     field :location, :string
     field :latitude, :float
     field :longitude, :float
+    
+    # Profile fields
+    field :pronouns, :string
+    field :bio, :string
 
     # Add associations
     has_many :posts, YoungvisionPlatform.Community.Post
@@ -50,11 +54,12 @@ defmodule YoungvisionPlatform.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :display_name, :location, :latitude, :longitude])
+    |> cast(attrs, [:email, :password, :display_name, :location, :latitude, :longitude, :pronouns, :bio])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_display_name()
     |> validate_location()
+    |> validate_profile()
   end
 
   defp validate_location(changeset) do
@@ -69,6 +74,23 @@ defmodule YoungvisionPlatform.Accounts.User do
     user
     |> cast(attrs, [:location, :latitude, :longitude])
     |> validate_location()
+  end
+
+  @doc """
+  A user changeset for updating profile information.
+  """
+  def profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:pronouns, :bio, :display_name, :location, :latitude, :longitude])
+    |> validate_display_name()
+    |> validate_profile()
+    |> validate_location()
+  end
+  
+  defp validate_profile(changeset) do
+    changeset
+    |> validate_length(:pronouns, max: 50)
+    |> validate_length(:bio, max: 1000)
   end
 
   defp validate_display_name(changeset) do

@@ -128,7 +128,12 @@
         </.header>
         <div class="py-4">
           <div class="mb-4">
-            <p class="text-sm text-gray-500">Posted by <%= @selected_event.user.display_name %></p>
+            <p class="text-sm text-gray-500">
+              Posted by 
+              <.link navigate={~p"/users/#{@selected_event.user.id}"} class="text-orange-500 hover:underline">
+                <%= @selected_event.user.display_name %>
+              </.link>
+            </p>
             <p class="text-sm text-gray-500">
               <%= Calendar.strftime(@selected_event.start_time, "%A, %B %d, %Y at %H:%M") %> - 
               <%= Calendar.strftime(@selected_event.end_time, "%A, %B %d, %Y at %H:%M") %>

@@ -1,7 +1,6 @@
 defmodule YoungvisionPlatformWeb.PageController do
   use YoungvisionPlatformWeb, :controller
 
-  import YoungvisionPlatformWeb.UserAuth
 
   def home(conn, _params) do
     # If user is logged in, redirect to posts

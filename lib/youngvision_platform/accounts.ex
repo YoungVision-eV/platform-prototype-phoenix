@@ -202,6 +202,22 @@ defmodule YoungvisionPlatform.Accounts do
     |> User.location_changeset(attrs)
     |> Repo.update()
   end
+  
+  @doc """
+  Returns a changeset for changing a user's profile information.
+  """
+  def change_user_profile(user, attrs \\ %{}) do
+    User.profile_changeset(user, attrs)
+  end
+
+  @doc """
+  Updates a user's profile information.
+  """
+  def update_user_profile(user, attrs) do
+    user
+    |> User.profile_changeset(attrs)
+    |> Repo.update()
+  end
 
   @doc """
   Gets all users with location information.

@@ -2,8 +2,6 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   use YoungvisionPlatformWeb, :live_view
 
   alias YoungvisionPlatform.Community
-  alias YoungvisionPlatform.Community.{Post, Comment}
-  alias YoungvisionPlatform.Accounts
 
   @impl true
   def mount(_params, _session, socket) do

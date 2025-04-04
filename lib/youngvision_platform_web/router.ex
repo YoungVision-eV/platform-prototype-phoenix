@@ -88,6 +88,10 @@ defmodule YoungvisionPlatformWeb.Router do
       live "/posts", PostsLive, :index
       live "/posts/new", PostsLive, :new
       live "/posts/:id", PostsLive, :show
+      
+      # User profile routes
+      live "/users/:id", UserProfileLive, :show
+      live "/users/:id/edit", UserProfileLive, :edit
     end
   end
 

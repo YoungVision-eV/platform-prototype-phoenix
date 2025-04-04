@@ -21,7 +21,7 @@ defmodule YoungvisionPlatformWeb.CommunityMapLive do
         
         <div class="mt-4 text-sm text-orange-700">
           <p>Each pin represents a community member's location. Click on a pin to see who's there!</p>
-          <p class="mt-2">Want to add your location? Update your profile in the <.link navigate={~p"/users/settings"} class="font-semibold text-brand hover:text-orange-700 hover:underline">settings page</.link>.</p>
+          <p class="mt-2">Want to add your location? Update your profile on your <.link navigate={~p"/users/#{@current_user.id}"} class="font-semibold text-brand hover:text-orange-700 hover:underline">profile page</.link>.</p>
         </div>
       </div>
     </div>

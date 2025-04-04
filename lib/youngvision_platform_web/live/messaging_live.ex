@@ -104,7 +104,7 @@ defmodule YoungvisionPlatformWeb.MessagingLive do
         socket.assigns.selected_conversation,
         %{"content" => content}
       ) do
-        {:ok, message} ->
+        {:ok, _message} ->
           # Reload the entire conversation to ensure consistency
           messages = Messaging.list_conversation(
             socket.assigns.current_user.id, 

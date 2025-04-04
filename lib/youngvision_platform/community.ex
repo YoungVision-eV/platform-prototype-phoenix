@@ -48,6 +48,24 @@ defmodule YoungvisionPlatform.Community do
   def list_posts do
     Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user, comments: [:user], reactions: [:user]])
   end
+  
+  @doc """
+  Returns the list of posts by a specific user.
+
+  ## Examples
+
+      iex> list_posts_by_user(user)
+      [%Post{}, ...]
+
+  """
+  def list_posts_by_user(user) do
+    Repo.all(
+      from p in Post,
+      where: p.user_id == ^user.id,
+      order_by: [desc: p.inserted_at],
+      preload: [:user, comments: [:user], reactions: [:user]]
+    )
+  end
 
   @doc """
   Gets a single post with user information.
@@ -485,7 +503,7 @@ defmodule YoungvisionPlatform.Community do
 
       reaction ->
         case delete_reaction(reaction) do
-          {:ok, deleted_reaction} -> 
+          {:ok, _deleted_reaction} -> 
             # Broadcast the reaction removal
             PubSub.broadcast(
               @pubsub,

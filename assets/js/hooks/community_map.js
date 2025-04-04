@@ -49,9 +49,11 @@ const CommunityMap = {
             this.map
           );
 
-          // Add a popup with user info
+          // Add a popup with user info and link to profile
           marker.bindPopup(`
-            <strong>${user.display_name}</strong>
+            <a href="/users/${user.id}" class="font-bold text-orange-600 hover:underline">
+              ${user.display_name}
+            </a>
             <p>${user.location}</p>
           `);
         }
