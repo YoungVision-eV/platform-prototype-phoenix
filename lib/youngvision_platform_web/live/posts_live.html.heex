@@ -1,0 +1,154 @@
+<div class="max-w-4xl mx-auto pt-6 pb-10">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-3xl font-bold text-gray-900"><%= @page_title %></h1>
+    <%= if @live_action == :index do %>
+      <.link patch={~p"/posts/new"} class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">
+        New Post
+      </.link>
+    <% end %>
+    <%= if @live_action == :show do %>
+      <.link navigate={~p"/posts"} class="text-blue-500 hover:text-blue-700">
+        &larr; Back to Posts
+      </.link>
+    <% end %>
+  </div>
+
+  <!-- New Post Form -->
+  <%= if @live_action == :new do %>
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Create a New Post</h2>
+      <.form for={%{"title" => "", "content" => ""}} phx-submit="create-post">
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="post_title">Title</label>
+          <input type="text" name="post[title]" id="post_title" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 text-sm font-bold mb-2" for="post_content">Content</label>
+          <textarea name="post[content]" id="post_content" required rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"></textarea>
+        </div>
+        <div class="flex items-center justify-end">
+          <.link patch={~p"/posts"} class="text-gray-600 mr-4">Cancel</.link>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md">Create Post</button>
+        </div>
+      </.form>
+    </div>
+  <% end %>
+
+  <%= if @live_action == :index do %>
+    <!-- Posts List -->
+    <div class="space-y-6">
+      <%= for post <- @posts do %>
+        <div id={"post-#{post.id}"} class="bg-white shadow rounded-lg overflow-hidden">
+          <div class="p-6">
+            <div class="flex items-center mb-4">
+              <div class="font-medium text-gray-900"><%= if post.user, do: post.user.display_name, else: "User" %></div>
+              <div class="text-sm text-gray-500 ml-2">
+                <%= Calendar.strftime(post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+              </div>
+            </div>
+            <.link navigate={~p"/posts/#{post.id}"} class="hover:text-blue-700">
+              <h2 class="text-xl font-semibold mb-2"><%= post.title %></h2>
+            </.link>
+            <p class="text-gray-700"><%= post.content %></p>
+            
+            <!-- Reactions -->
+            <div class="mt-4 flex items-center">
+              <%= for emoji <- Community.list_valid_emojis() do %>
+                <button 
+                  phx-click="add-reaction" 
+                  phx-value-post_id={post.id} 
+                  phx-value-emoji={emoji}
+                  class="mr-2 text-2xl hover:bg-gray-100 rounded-full p-1 transition"
+                >
+                  <%= emoji %>
+                  <% reaction_count = Enum.count(post.reactions, fn r -> r.emoji == emoji end) %>
+                  <%= if reaction_count > 0 do %>
+                    <span class="text-xs bg-gray-200 rounded-full px-1"><%= reaction_count %></span>
+                  <% end %>
+                </button>
+              <% end %>
+            </div>
+          </div>
+          
+          <!-- Comments Summary -->
+          <div class="bg-gray-50 p-6">
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold">Comments (<%= length(post.comments) %>)</h3>
+              <.link navigate={~p"/posts/#{post.id}"} class="text-blue-500 hover:text-blue-700">View all</.link>
+            </div>
+            <%= if length(post.comments) > 0 do %>
+              <div class="mt-4">
+                <% latest_comment = List.first(Enum.sort_by(post.comments, & &1.inserted_at, {:desc, DateTime})) %>
+                <div id={"comment-#{latest_comment.id}"} class="flex">
+                  <div class="mr-3 font-medium"><%= if latest_comment.user, do: latest_comment.user.display_name, else: "User" %>:</div>
+                  <div><%= latest_comment.content %></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  
+  <%= if @live_action == :show do %>
+    <!-- Single Post View -->
+    <div id={"post-#{@post.id}"} class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="p-6">
+        <div class="flex items-center mb-4">
+          <div class="font-medium text-gray-900"><%= if @post.user, do: @post.user.display_name, else: "User" %></div>
+          <div class="text-sm text-gray-500 ml-2">
+            <%= Calendar.strftime(@post.inserted_at, "%B %d, %Y at %I:%M %p") %>
+          </div>
+        </div>
+        <h2 class="text-xl font-semibold mb-2"><%= @post.title %></h2>
+        <p class="text-gray-700"><%= @post.content %></p>
+        
+        <!-- Reactions -->
+        <div class="mt-4 flex items-center">
+          <%= for emoji <- Community.list_valid_emojis() do %>
+            <button 
+              phx-click="add-reaction" 
+              phx-value-post_id={@post.id} 
+              phx-value-emoji={emoji}
+              class="mr-2 text-2xl hover:bg-gray-100 rounded-full p-1 transition"
+            >
+              <%= emoji %>
+              <% reaction_count = Enum.count(@post.reactions, fn r -> r.emoji == emoji end) %>
+              <%= if reaction_count > 0 do %>
+                <span class="text-xs bg-gray-200 rounded-full px-1"><%= reaction_count %></span>
+              <% end %>
+            </button>
+          <% end %>
+        </div>
+      </div>
+      
+      <!-- Comments -->
+      <div class="bg-gray-50 p-6">
+        <h3 class="text-lg font-semibold mb-4">Comments</h3>
+        <div class="space-y-4" id="post-comments">
+          <%= for comment <- Enum.sort_by(@post.comments, & &1.inserted_at, :asc) do %>
+            <div id={"comment-#{comment.id}"} class="flex">
+              <div class="mr-3 font-medium"><%= if comment.user, do: comment.user.display_name, else: "User" %>:</div>
+              <div><%= comment.content %></div>
+            </div>
+          <% end %>
+        </div>
+        
+        <!-- Add Comment Form -->
+        <div class="mt-4">
+          <.form for={@comment_form} phx-submit="add-comment" phx-value-post_id={@post.id} class="flex">
+            <input 
+              type="text" 
+              name="comment[content]" 
+              placeholder="Add a comment..." 
+              class="flex-1 border rounded-l-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md">Post</button>
+          </.form>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

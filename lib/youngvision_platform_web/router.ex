@@ -20,7 +20,7 @@ defmodule YoungvisionPlatformWeb.Router do
   scope "/", YoungvisionPlatformWeb do
     pipe_through :browser
 
-    get "/", PostController, :index
+    get "/", PageController, :home
   end
 
   # Other scopes may use custom stacks.
@@ -64,10 +64,7 @@ defmodule YoungvisionPlatformWeb.Router do
   scope "/", YoungvisionPlatformWeb do
     pipe_through [:browser, :require_authenticated_user]
 
-    # Add post routes to the authenticated section
-    resources "/posts", PostController, except: [:edit, :update, :delete]
-    post "/posts/:post_id/comments", PostController, :add_comment
-    post "/posts/:post_id/reactions/:emoji", PostController, :toggle_reaction
+    # Controller-based post routes are now handled by LiveView
 
     live_session :require_authenticated_user,
       on_mount: [{YoungvisionPlatformWeb.UserAuth, :ensure_authenticated}] do
@@ -85,6 +82,12 @@ defmodule YoungvisionPlatformWeb.Router do
       live "/messages", MessagingLive, :index
       live "/messages/new", MessagingLive, :new
       live "/messages/:id", MessagingLive, :show
+      
+      # Posts routes with LiveView for real-time updates
+      live "/", PostsLive, :index
+      live "/posts", PostsLive, :index
+      live "/posts/new", PostsLive, :new
+      live "/posts/:id", PostsLive, :show
     end
   end
 

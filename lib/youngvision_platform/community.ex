@@ -5,10 +5,36 @@ defmodule YoungvisionPlatform.Community do
 
   import Ecto.Query, warn: false
   alias YoungvisionPlatform.Repo
+  alias Phoenix.PubSub
 
   alias YoungvisionPlatform.Community.Post
   alias YoungvisionPlatform.Community.Comment
   alias YoungvisionPlatform.Community.Reaction
+  
+  @pubsub YoungvisionPlatform.PubSub
+  
+  # PubSub topic for posts
+  def posts_topic, do: "posts"
+  
+  # Subscribe to post updates
+  def subscribe_to_posts do
+    PubSub.subscribe(@pubsub, posts_topic())
+  end
+  
+  # Broadcast when a post is created
+  def broadcast_post_created(post) do
+    PubSub.broadcast(@pubsub, posts_topic(), {:post_created, post})
+  end
+  
+  # Broadcast when a comment is added
+  def broadcast_comment_added(comment) do
+    PubSub.broadcast(@pubsub, posts_topic(), {:comment_added, comment})
+  end
+  
+  # Broadcast when a reaction is added
+  def broadcast_reaction_added(reaction) do
+    PubSub.broadcast(@pubsub, posts_topic(), {:reaction_added, reaction})
+  end
 
   @doc """
   Returns the list of posts with user information.
@@ -20,7 +46,7 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_posts do
-    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user, :comments, :reactions])
+    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user, comments: [:user], reactions: [:user]])
   end
 
   @doc """
@@ -55,6 +81,13 @@ defmodule YoungvisionPlatform.Community do
     %Post{}
     |> Post.changeset(Map.put(attrs, "user_id", user.id))
     |> Repo.insert()
+    |> case do
+      {:ok, post} ->
+        post = Repo.preload(post, [:user])
+        broadcast_post_created(post)
+        {:ok, post}
+      error -> error
+    end
   end
 
   @doc """
@@ -155,6 +188,13 @@ defmodule YoungvisionPlatform.Community do
     %Comment{}
     |> Comment.changeset(Map.merge(attrs, %{"user_id" => user.id, "post_id" => post.id}))
     |> Repo.insert()
+    |> case do
+      {:ok, comment} ->
+        comment = Repo.preload(comment, [:user, :post])
+        broadcast_comment_added(comment)
+        {:ok, comment}
+      error -> error
+    end
   end
 
   @doc """
@@ -410,6 +450,13 @@ defmodule YoungvisionPlatform.Community do
     %Reaction{}
     |> Reaction.changeset(Map.merge(attrs, %{"user_id" => user.id, "post_id" => post.id}))
     |> Repo.insert()
+    |> case do
+      {:ok, reaction} ->
+        reaction = Repo.preload(reaction, [:user, :post])
+        broadcast_reaction_added(reaction)
+        {:ok, reaction}
+      error -> error
+    end
   end
 
   @doc """
@@ -429,14 +476,25 @@ defmodule YoungvisionPlatform.Community do
     case get_reaction_by_user_post_emoji(user.id, post.id, emoji) do
       nil ->
         case create_reaction(user, post, %{"emoji" => emoji}) do
-          {:ok, reaction} -> {:ok, :created, reaction}
-          {:error, changeset} -> {:error, changeset}
+          {:ok, reaction} -> 
+            # Reaction already broadcast by create_reaction
+            {:ok, :created, reaction}
+          {:error, changeset} -> 
+            {:error, changeset}
         end
 
       reaction ->
         case delete_reaction(reaction) do
-          {:ok, _} -> {:ok, :deleted}
-          {:error, changeset} -> {:error, changeset}
+          {:ok, deleted_reaction} -> 
+            # Broadcast the reaction removal
+            PubSub.broadcast(
+              @pubsub,
+              posts_topic(),
+              {:reaction_removed, %{post_id: post.id, emoji: emoji, user_id: user.id}}
+            )
+            {:ok, :deleted}
+          {:error, changeset} -> 
+            {:error, changeset}
         end
     end
   end
