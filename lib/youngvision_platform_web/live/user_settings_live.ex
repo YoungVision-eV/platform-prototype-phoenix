@@ -13,6 +13,23 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
     <div class="space-y-12 divide-y">
       <div>
         <.simple_form
+          for={@location_form}
+          id="location_form"
+          phx-submit="update_location"
+          phx-change="validate_location"
+          class="bg-orange-100 p-6 rounded-lg border border-orange-100 shadow-sm"
+        >
+          <.input field={@location_form[:location]} type="text" label="Home Town" placeholder="e.g. Berlin, Germany" />
+          <div class="text-sm text-orange-700 mt-2">
+            Enter your home town to appear on the community map. This information is visible to all community members.
+          </div>
+          <:actions>
+            <.button phx-disable-with="Updating...">Update Location</.button>
+          </:actions>
+        </.simple_form>
+      </div>
+      <div>
+        <.simple_form
           for={@email_form}
           id="email_form"
           phx-submit="update_email"
@@ -92,6 +109,7 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
     user = socket.assigns.current_user
     email_changeset = Accounts.change_user_email(user)
     password_changeset = Accounts.change_user_password(user)
+    location_changeset = Accounts.change_user_location(user)
 
     socket =
       socket
@@ -100,6 +118,7 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
       |> assign(:current_email, user.email)
       |> assign(:email_form, to_form(email_changeset))
       |> assign(:password_form, to_form(password_changeset))
+      |> assign(:location_form, to_form(location_changeset))
       |> assign(:trigger_submit, false)
 
     {:ok, socket}
@@ -164,6 +183,57 @@ defmodule YoungvisionPlatformWeb.UserSettingsLive do
 
       {:error, changeset} ->
         {:noreply, assign(socket, password_form: to_form(changeset))}
+    end
+  end
+
+  def handle_event("validate_location", %{"user" => user_params}, socket) do
+    location_form =
+      socket.assigns.current_user
+      |> Accounts.change_user_location(user_params)
+      |> Map.put(:action, :validate)
+      |> to_form()
+
+    {:noreply, assign(socket, location_form: location_form)}
+  end
+
+  def handle_event("update_location", %{"user" => user_params}, socket) do
+    user = socket.assigns.current_user
+    location = user_params["location"]
+    
+    IO.puts("Updating location to: #{location}")
+    
+    user_params = if location && location != "" do
+      IO.puts("Attempting to geocode: #{location}")
+      case YoungvisionPlatform.Services.Geocoding.geocode(location) do
+        {:ok, {latitude, longitude}} ->
+          IO.puts("Geocoding successful: lat=#{latitude}, lon=#{longitude}")
+          Map.merge(user_params, %{"latitude" => latitude, "longitude" => longitude})
+        {:error, reason} ->
+          IO.puts("Geocoding failed: #{reason}")
+          # If geocoding fails, we'll still save the location name but without coordinates
+          user_params
+      end
+    else
+      # If location is empty, clear the coordinates
+      IO.puts("Empty location, clearing coordinates")
+      Map.merge(user_params, %{"latitude" => nil, "longitude" => nil})
+    end
+
+    case Accounts.update_user_location(user, user_params) do
+      {:ok, updated_user} ->
+        location_message = if updated_user.location && updated_user.latitude && updated_user.longitude do
+          "Location updated successfully and placed on the map."
+        else
+          "Location name saved, but couldn't be placed on the map. Please try a more specific location."
+        end
+        
+        {:noreply, 
+         socket
+         |> put_flash(:info, location_message)
+         |> assign(:location_form, to_form(Accounts.change_user_location(updated_user)))}
+
+      {:error, changeset} ->
+        {:noreply, assign(socket, location_form: to_form(changeset))}
     end
   end
 end

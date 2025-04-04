@@ -14,34 +14,61 @@ alias YoungvisionPlatform.Repo
 alias YoungvisionPlatform.Community.Post
 alias YoungvisionPlatform.Accounts
 
-# Create test users
-{:ok, jonas} =
-  Accounts.register_user(%{
-    email: "jonas@example.com",
-    password: "password123456",
-    display_name: "Jonas"
-  })
+# Get or create test users with locations throughout Germany
+get_or_update_user = fn email, display_name, location, lat, lng ->
+  case Accounts.get_user_by_email(email) do
+    nil ->
+      {:ok, user} = Accounts.register_user(%{
+        email: email,
+        password: "password123456",
+        display_name: display_name,
+        location: location,
+        latitude: lat,
+        longitude: lng
+      })
+      user
+    existing_user ->
+      {:ok, updated_user} = Accounts.update_user_location(existing_user, %{
+        "location" => location,
+        "latitude" => lat,
+        "longitude" => lng
+      })
+      updated_user
+  end
+end
 
-{:ok, maria} =
-  Accounts.register_user(%{
-    email: "maria@example.com",
-    password: "password123456",
-    display_name: "Maria"
-  })
+# Create or update users with locations throughout Germany
+jonas = get_or_update_user.(
+  "jonas@example.com", 
+  "Jonas", 
+  "Berlin, Germany", 
+  52.5200, 
+  13.4050
+)
 
-{:ok, thomas} =
-  Accounts.register_user(%{
-    email: "thomas@example.com",
-    password: "password123456",
-    display_name: "Thomas"
-  })
+maria = get_or_update_user.(
+  "maria@example.com", 
+  "Maria", 
+  "Munich, Germany", 
+  48.1351, 
+  11.5820
+)
 
-{:ok, lisa} =
-  Accounts.register_user(%{
-    email: "lisa@example.com",
-    password: "password123456",
-    display_name: "Lisa"
-  })
+thomas = get_or_update_user.(
+  "thomas@example.com", 
+  "Thomas", 
+  "Hamburg, Germany", 
+  53.5511, 
+  9.9937
+)
+
+lisa = get_or_update_user.(
+  "lisa@example.com", 
+  "Lisa", 
+  "Cologne, Germany", 
+  50.9375, 
+  6.9603
+)
 
 # Create sample posts associated with users
 post1 = Repo.insert!(%Post{

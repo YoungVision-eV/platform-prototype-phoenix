@@ -188,6 +188,31 @@ defmodule YoungvisionPlatform.Accounts do
   end
 
   @doc """
+  Returns a changeset for changing a user's location information.
+  """
+  def change_user_location(user, attrs \\ %{}) do
+    User.location_changeset(user, attrs)
+  end
+
+  @doc """
+  Updates a user's location information.
+  """
+  def update_user_location(user, attrs) do
+    user
+    |> User.location_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets all users with location information.
+  """
+  def list_users_with_location do
+    User
+    |> where([u], not is_nil(u.location))
+    |> Repo.all()
+  end
+
+  @doc """
   Updates the user password.
 
   ## Examples
