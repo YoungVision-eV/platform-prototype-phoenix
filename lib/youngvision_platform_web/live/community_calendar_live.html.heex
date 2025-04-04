@@ -59,17 +59,42 @@
               </div>
               <div class="mt-1 space-y-1 max-h-[80px] overflow-y-auto">
                 <%= for event <- day_events do %>
-                  <.link patch={~p"/community/calendar/#{event.id}"} class="block p-1 text-xs rounded bg-blue-100 hover:bg-blue-200">
+                  <% 
+                    start_date = DateTime.to_date(event.start_time)
+                    end_date = DateTime.to_date(event.end_time)
+                    is_start_day = Date.compare(date, start_date) == :eq
+                    is_end_day = Date.compare(date, end_date) == :eq
+                    is_middle_day = Date.compare(date, start_date) == :gt && Date.compare(date, end_date) == :lt
+                    
+                    # Different background colors based on event position
+                    bg_color = cond do
+                      is_start_day && is_end_day -> "bg-blue-100" # Single day event
+                      is_start_day -> "bg-blue-100 border-l-4 border-blue-400" # First day
+                      is_end_day -> "bg-blue-100 border-r-4 border-blue-400" # Last day
+                      is_middle_day -> "bg-blue-50 border-l border-r border-blue-400" # Middle day
+                    end
+                  %>
+                  <.link patch={~p"/community/calendar/#{event.id}"} class={["block p-1 text-xs rounded hover:bg-blue-200", bg_color]}>
                     <div class="flex items-center">
-                      <div class="w-5 h-5 rounded-full overflow-hidden mr-1 flex-shrink-0">
-                        <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(event.user)} 
-                             alt="#{event.user.display_name}'s profile picture" 
-                             class="w-full h-full object-cover" />
-                      </div>
+                      <%= if is_start_day do %>
+                        <div class="w-5 h-5 rounded-full overflow-hidden mr-1 flex-shrink-0">
+                          <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(event.user)} 
+                               alt="#{event.user.display_name}'s profile picture" 
+                               class="w-full h-full object-cover" />
+                        </div>
+                      <% else %>
+                        <div class="w-5 h-5 flex-shrink-0 mr-1 flex items-center justify-center">
+                          <span class="text-blue-500">→</span>
+                        </div>
+                      <% end %>
                       <div class="truncate">
                         <span class="font-medium"><%= event.title %></span>
                         <div class="text-xs text-gray-600">
-                          <%= Calendar.strftime(event.start_time, "%H:%M") %>
+                          <%= if is_start_day do %>
+                            <%= Calendar.strftime(event.start_time, "%H:%M") %>
+                          <% else %>
+                            <span class="italic">continues</span>
+                          <% end %>
                         </div>
                       </div>
                     </div>

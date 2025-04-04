@@ -180,8 +180,12 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
 
   defp events_for_day(events, date) do
     Enum.filter(events, fn event -> 
-      event_date = DateTime.to_date(event.start_time)
-      Date.compare(event_date, date) == :eq
+      start_date = DateTime.to_date(event.start_time)
+      end_date = DateTime.to_date(event.end_time)
+      
+      # Check if the date is between start and end dates (inclusive)
+      (Date.compare(date, start_date) == :eq || Date.compare(date, start_date) == :gt) &&
+      (Date.compare(date, end_date) == :eq || Date.compare(date, end_date) == :lt)
     end)
   end
 end

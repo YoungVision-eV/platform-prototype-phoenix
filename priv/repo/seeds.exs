@@ -273,6 +273,19 @@ Repo.insert!(%Event{
   user_id: jonas.id
 })
 
+# Add Bauwoche - a multi-day event from May 1st to May 4th
+# Find May 1st, 2025
+may_2025 = Date.new!(2025, 5, 1)
+
+Repo.insert!(%Event{
+  title: "Bauwoche",
+  description: "Join us for our annual building week where we'll work together to build and renovate community spaces. This is a great opportunity to learn practical skills, connect with other community members, and make a tangible impact. All skill levels are welcome - we have tasks for everyone!",
+  location: "Gemeinschaftsgarten, Leipzig",
+  start_time: may_2025 |> DateTime.new!(~T[09:00:00], "Etc/UTC"),
+  end_time: may_2025 |> Date.add(3) |> DateTime.new!(~T[18:00:00], "Etc/UTC"),
+  user_id: thomas.id
+})
+
 # -----------------------------------------------
 # Seed data for messages
 # -----------------------------------------------
