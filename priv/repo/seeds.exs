@@ -14,11 +14,6 @@ alias YoungvisionPlatform.Repo
 alias YoungvisionPlatform.Community.Post
 alias YoungvisionPlatform.Accounts
 
-# Clear existing data
-Repo.delete_all("users_tokens")
-Repo.delete_all(Post)
-Repo.delete_all("users")
-
 # Create test users
 {:ok, jonas} =
   Accounts.register_user(%{
