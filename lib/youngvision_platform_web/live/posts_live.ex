@@ -59,11 +59,11 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   @impl true
   def handle_event("create-post", %{"post" => post_params}, socket) do
     case Community.create_post(socket.assigns.current_user, post_params) do
-      {:ok, _post} ->
+      {:ok, post} ->
         {:noreply, 
           socket
           |> put_flash(:info, "Post created successfully")
-          |> push_patch(to: ~p"/live/posts")
+          |> push_navigate(to: ~p"/posts/#{post.id}")
         }
       
       {:error, %Ecto.Changeset{} = changeset} ->
