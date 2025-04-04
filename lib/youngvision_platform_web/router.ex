@@ -17,7 +17,8 @@ defmodule YoungvisionPlatformWeb.Router do
   scope "/", YoungvisionPlatformWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    get "/", PostController, :index
+    resources "/posts", PostController, except: [:edit, :update, :delete]
   end
 
   # Other scopes may use custom stacks.

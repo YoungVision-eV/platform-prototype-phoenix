@@ -1,0 +1,1 @@
+0. run all mix commands with `toolbox run`, e.g. `toolbox run mix deps.get`
