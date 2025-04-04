@@ -177,13 +177,16 @@
         
         <!-- Add Comment Form -->
         <div class="mt-4">
-          <.form for={@comment_form} phx-submit="add-comment" phx-value-post_id={@post.id} class="flex">
+          <.form for={@comment_form} phx-submit="add-comment" class="flex">
             <input 
+              id="comment-content"
               type="text" 
-              name="comment[content]" 
+              name="content" 
+              value={@comment_form[:content].value}
               placeholder="Add a comment..." 
               class="flex-1 border rounded-l-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              autocomplete="off"
             />
             <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-r-md">Post</button>
           </.form>
