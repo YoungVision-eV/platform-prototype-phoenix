@@ -13,12 +13,29 @@
       <a href="/posts" class="hover:text-zinc-700">
         Posts
       </a>
-      <a
-        href="/posts/new"
-        class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90"
-      >
-        New Post <span aria-hidden="true">+</span>
-      </a>
+
+      <%= if @current_user do %>
+        <span class="text-sm text-zinc-600 mr-2">Hello, {@current_user.email}</span>
+        <a href="/posts/new" class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90">
+          New Post <span aria-hidden="true">+</span>
+        </a>
+        <.link href="/users/settings" class="hover:text-zinc-700">
+          Settings
+        </.link>
+        <.link href="/users/log_out" method="delete" class="hover:text-zinc-700">
+          Log out
+        </.link>
+      <% else %>
+        <.link href="/users/register" class="hover:text-zinc-700">
+          Register
+        </.link>
+        <.link
+          href="/users/log_in"
+          class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90"
+        >
+          Log in
+        </.link>
+      <% end %>
     </div>
   </div>
 </header>

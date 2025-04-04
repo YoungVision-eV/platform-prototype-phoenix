@@ -1,1 +1,2 @@
-0. run all mix commands with `toolbox run`, e.g. `toolbox run mix deps.get`
+1. run all mix commands with `toolbox run`, e.g. `toolbox run mix deps.get`
+2. do not restart the phoenix server as it does it automatically when changes are detected

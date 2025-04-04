@@ -10,7 +10,8 @@ defmodule YoungvisionPlatform.Application do
     children = [
       YoungvisionPlatformWeb.Telemetry,
       YoungvisionPlatform.Repo,
-      {DNSCluster, query: Application.get_env(:youngvision_platform, :dns_cluster_query) || :ignore},
+      {DNSCluster,
+       query: Application.get_env(:youngvision_platform, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: YoungvisionPlatform.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: YoungvisionPlatform.Finch},

@@ -9,7 +9,7 @@ defmodule YoungvisionPlatform.Community do
   alias YoungvisionPlatform.Community.Post
 
   @doc """
-  Returns the list of posts.
+  Returns the list of posts with user information.
 
   ## Examples
 
@@ -18,11 +18,11 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_posts do
-    Repo.all(from p in Post, order_by: [desc: p.inserted_at])
+    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user])
   end
 
   @doc """
-  Gets a single post.
+  Gets a single post with user information.
 
   Raises `Ecto.NoResultsError` if the Post does not exist.
 
@@ -35,23 +35,23 @@ defmodule YoungvisionPlatform.Community do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id), do: Repo.get!(Post, id)
+  def get_post!(id), do: Repo.get!(Post, id) |> Repo.preload(:user)
 
   @doc """
-  Creates a post.
+  Creates a post associated with a user.
 
   ## Examples
 
-      iex> create_post(%{field: value})
+      iex> create_post(user, %{field: value})
       {:ok, %Post{}}
 
-      iex> create_post(%{field: bad_value})
+      iex> create_post(user, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_post(attrs \\ %{}) do
+  def create_post(user, attrs \\ %{}) do
     %Post{}
-    |> Post.changeset(attrs)
+    |> Post.changeset(Map.put(attrs, "user_id", user.id))
     |> Repo.insert()
   end
 

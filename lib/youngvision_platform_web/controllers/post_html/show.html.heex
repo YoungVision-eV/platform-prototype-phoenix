@@ -8,13 +8,13 @@
 </.header>
 
 <.list>
-  <:item title="Title"><%= @post.title %></:item>
-  <:item title="Author"><%= @post.author %></:item>
-  <:item title="Posted"><%= Calendar.strftime(@post.inserted_at, "%d %b %Y, %H:%M") %></:item>
+  <:item title="Title">{@post.title}</:item>
+  <:item title="Author">{@post.user.email}</:item>
+  <:item title="Posted">{Calendar.strftime(@post.inserted_at, "%d %b %Y, %H:%M")}</:item>
 </.list>
 
 <div class="mt-6 px-4 py-6 bg-white rounded-lg shadow">
   <div class="prose max-w-none">
-    <%= @post.content %>
+    {@post.content}
   </div>
 </div>

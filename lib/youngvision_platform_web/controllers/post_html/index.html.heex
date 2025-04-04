@@ -8,9 +8,9 @@
 </.header>
 
 <.table id="posts" rows={@posts}>
-  <:col :let={post} label="Title"><%= post.title %></:col>
-  <:col :let={post} label="Author"><%= post.author %></:col>
-  <:col :let={post} label="Posted"><%= Calendar.strftime(post.inserted_at, "%d %b %Y, %H:%M") %></:col>
+  <:col :let={post} label="Title">{post.title}</:col>
+  <:col :let={post} label="Author">{post.user.email}</:col>
+  <:col :let={post} label="Posted">{Calendar.strftime(post.inserted_at, "%d %b %Y, %H:%M")}</:col>
   <:action :let={post}>
     <.link navigate={~p"/posts/#{post}"}>View</.link>
   </:action>

@@ -1,8 +1,14 @@
 defmodule YoungvisionPlatformWeb.PostController do
   use YoungvisionPlatformWeb, :controller
 
+  import YoungvisionPlatformWeb.UserAuth
+
   alias YoungvisionPlatform.Community
   alias YoungvisionPlatform.Community.Post
+  alias YoungvisionPlatform.Accounts
+
+  # Require authentication for all actions in this controller
+  plug :require_authenticated_user
 
   def index(conn, _params) do
     posts = Community.list_posts()
@@ -15,7 +21,10 @@ defmodule YoungvisionPlatformWeb.PostController do
   end
 
   def create(conn, %{"post" => post_params}) do
-    case Community.create_post(post_params) do
+    # Get the current user from the connection
+    current_user = conn.assigns.current_user
+
+    case Community.create_post(current_user, post_params) do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post created successfully.")
