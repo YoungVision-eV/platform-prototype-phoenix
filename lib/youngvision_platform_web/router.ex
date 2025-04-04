@@ -80,6 +80,11 @@ defmodule YoungvisionPlatformWeb.Router do
       live "/community/calendar/new", CommunityCalendarLive, :new
       live "/community/calendar/:id", CommunityCalendarLive, :show
       live "/community/calendar/:id/edit", CommunityCalendarLive, :edit
+      
+      # Messaging routes
+      live "/messages", MessagingLive, :index
+      live "/messages/new", MessagingLive, :new
+      live "/messages/:id", MessagingLive, :show
     end
   end
 

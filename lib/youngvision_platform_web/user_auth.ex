@@ -175,11 +175,20 @@ defmodule YoungvisionPlatformWeb.UserAuth do
   end
 
   defp mount_current_user(socket, session) do
-    Phoenix.Component.assign_new(socket, :current_user, fn ->
+    socket = Phoenix.Component.assign_new(socket, :current_user, fn ->
       if user_token = session["user_token"] do
         Accounts.get_user_by_session_token(user_token)
       end
     end)
+    
+    # Add unread message count if user is logged in
+    if socket.assigns.current_user do
+      Phoenix.Component.assign_new(socket, :unread_message_count, fn ->
+        YoungvisionPlatform.Messaging.count_unread_messages(socket.assigns.current_user.id)
+      end)
+    else
+      socket
+    end
   end
 
   @doc """

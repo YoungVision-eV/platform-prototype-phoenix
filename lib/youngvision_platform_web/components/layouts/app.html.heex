@@ -29,6 +29,16 @@
             Calendar
           </a>
         </li>
+        <%= if @current_user do %>
+        <li>
+          <a href="/messages" class="hover:text-zinc-700 flex items-center">
+            Messages
+            <%= if assigns[:unread_message_count] && @unread_message_count > 0 do %>
+              <span class="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= @unread_message_count %></span>
+            <% end %>
+          </a>
+        </li>
+        <% end %>
         
         <%= if @current_user do %>
           <li>
@@ -54,6 +64,9 @@
                 id="user-menu-dropdown"
                 class="absolute right-0 mt-2 w-48 bg-orange-50 rounded-md shadow-lg py-1 z-10 hidden border border-orange-100"
               >
+                <.link href="/messages" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
+                  Messages
+                </.link>
                 <.link href="/users/settings" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
                   Settings
                 </.link>

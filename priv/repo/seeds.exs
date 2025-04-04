@@ -272,3 +272,62 @@ Repo.insert!(%Event{
   end_time: next_month |> Date.add(5) |> DateTime.new!(~T[18:00:00], "Etc/UTC"),
   user_id: jonas.id
 })
+
+# -----------------------------------------------
+# Seed data for messages
+# -----------------------------------------------
+alias YoungvisionPlatform.Messaging.Message
+
+# Conversation between Jonas and Maria
+Repo.insert!(%Message{
+  content: "Hi Jonas, I saw your post about the community garden. I'd love to get involved!",
+  sender_id: maria.id,
+  recipient_id: jonas.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-3 * 24 * 60 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-3 * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
+
+Repo.insert!(%Message{
+  content: "That's great Maria! We're meeting this Saturday at 10am. Would you like to join us?",
+  sender_id: jonas.id,
+  recipient_id: maria.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-3 * 24 * 60 * 60 + 30 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-3 * 24 * 60 * 60 + 30 * 60, :second) |> DateTime.truncate(:second),
+  read_at: DateTime.utc_now() |> DateTime.add(-3 * 24 * 60 * 60 + 2 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
+
+Repo.insert!(%Message{
+  content: "Yes, I'll be there! Should I bring any tools or supplies?",
+  sender_id: maria.id,
+  recipient_id: jonas.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60, :second) |> DateTime.truncate(:second),
+  read_at: DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60 + 1 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
+
+Repo.insert!(%Message{
+  content: "Just bring gloves if you have them. We have all the tools needed. Looking forward to seeing you there!",
+  sender_id: jonas.id,
+  recipient_id: maria.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60 + 2 * 60 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-2 * 24 * 60 * 60 + 2 * 60 * 60, :second) |> DateTime.truncate(:second),
+  read_at: DateTime.utc_now() |> DateTime.add(-1 * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
+
+# Conversation between Jonas and Thomas
+Repo.insert!(%Message{
+  content: "Hello Jonas, I'm organizing a workshop on sustainable living next month. Would you be interested in speaking about urban gardening?",
+  sender_id: thomas.id,
+  recipient_id: jonas.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-1 * 24 * 60 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-1 * 24 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
+
+# Conversation between Jonas and Lisa
+Repo.insert!(%Message{
+  content: "Hi Jonas, I wanted to ask if you'll be attending the book club meeting next week?",
+  sender_id: lisa.id,
+  recipient_id: jonas.id,
+  inserted_at: DateTime.utc_now() |> DateTime.add(-5 * 60 * 60, :second) |> DateTime.truncate(:second),
+  updated_at: DateTime.utc_now() |> DateTime.add(-5 * 60 * 60, :second) |> DateTime.truncate(:second)
+})
