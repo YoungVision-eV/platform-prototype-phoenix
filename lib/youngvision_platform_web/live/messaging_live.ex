@@ -79,6 +79,19 @@ defmodule YoungvisionPlatformWeb.MessagingLive do
   end
 
   @impl true
+  def handle_params(_params, _uri, %{assigns: %{live_action: :new}} = socket) do
+    # Preload users for the new message modal
+    users = Accounts.list_users()
+    |> Enum.filter(fn user -> user.id != socket.assigns.current_user.id end)
+    
+    {:noreply, 
+      socket
+      |> assign(:selected_conversation, nil)
+      |> assign(:users, users)
+    }
+  end
+  
+  @impl true
   def handle_params(_params, _uri, socket) do
     {:noreply, assign(socket, :selected_conversation, nil)}
   end
@@ -117,9 +130,9 @@ defmodule YoungvisionPlatformWeb.MessagingLive do
 
   @impl true
   def handle_event("load-user-list", _params, socket) do
-    # Get all users with location data
-    users = Accounts.list_users_with_location()
-    users = Enum.filter(users, fn user -> user.id != socket.assigns.current_user.id end)
+    # Get all users except the current user
+    users = Accounts.list_users()
+    |> Enum.filter(fn user -> user.id != socket.assigns.current_user.id end)
     
     {:noreply, assign(socket, :users, users)}
   end

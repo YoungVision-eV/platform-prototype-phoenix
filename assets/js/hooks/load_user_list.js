@@ -1,10 +1,24 @@
 const LoadUserList = {
   mounted() {
+    console.log("LoadUserList hook mounted");
     this.pushEvent("load-user-list", {});
     
+    this.handleSearch();
+  },
+  
+  updated() {
+    console.log("LoadUserList hook updated");
+    this.handleSearch();
+  },
+  
+  handleSearch() {
     const searchInput = document.getElementById("user-search");
     if (searchInput) {
-      searchInput.addEventListener("input", (e) => {
+      // Remove any existing event listener to prevent duplicates
+      const newSearchInput = searchInput.cloneNode(true);
+      searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+      
+      newSearchInput.addEventListener("input", (e) => {
         const searchTerm = e.target.value.toLowerCase();
         const userItems = document.querySelectorAll("#user-list a");
         

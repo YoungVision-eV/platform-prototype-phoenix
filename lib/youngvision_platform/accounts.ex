@@ -213,6 +213,13 @@ defmodule YoungvisionPlatform.Accounts do
   end
 
   @doc """
+  Gets all users.
+  """
+  def list_users do
+    Repo.all(User)
+  end
+
+  @doc """
   Updates the user password.
 
   ## Examples
