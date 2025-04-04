@@ -20,7 +20,7 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_posts do
-    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user])
+    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user, :comments, :reactions])
   end
 
   @doc """

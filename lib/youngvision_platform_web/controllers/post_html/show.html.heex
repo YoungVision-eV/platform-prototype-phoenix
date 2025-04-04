@@ -1,17 +1,27 @@
-<.header>
-  Post Details
-  <:actions>
+<div class="bg-gradient-to-r from-orange-50 to-amber-50 py-8 px-4 sm:px-6 lg:px-8 rounded-lg mb-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-900">Post Details</h1>
     <.link href={~p"/posts"}>
-      <.button>Back to posts</.button>
+      <.button class="bg-brand hover:bg-brand/90">Back to posts</.button>
     </.link>
-  </:actions>
-</.header>
+  </div>
+</div>
 
-<.list>
-  <:item title="Title">{@post.title}</:item>
-  <:item title="Author">{@post.user.display_name}</:item>
-  <:item title="Posted">{Calendar.strftime(@post.inserted_at, "%d %b %Y, %H:%M")}</:item>
-</.list>
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+  <div class="flex items-center mb-4">
+    <div class="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center text-brand font-semibold text-xl">
+      <%= String.first(@post.user.display_name) %>
+    </div>
+    <div class="ml-4">
+      <h2 class="text-2xl font-bold text-gray-900 mb-1">{@post.title}</h2>
+      <div class="flex items-center text-sm text-gray-500">
+        <span class="font-medium text-gray-700">{@post.user.display_name}</span>
+        <span class="mx-2">•</span>
+        <span>{Calendar.strftime(@post.inserted_at, "%d %b %Y, %H:%M")}</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="mt-6 px-4 py-6 bg-white rounded-lg shadow">
   <div class="prose max-w-none">
@@ -25,7 +35,7 @@
           emoji_name = YoungvisionPlatform.Community.emoji_names()[emoji]
           reaction_count = @post.reactions |> Enum.filter(fn r -> r.emoji == emoji end) |> length()
           user_reacted = @post.reactions |> Enum.any?(fn r -> r.emoji == emoji && r.user_id == @current_user.id end)
-          button_class = if user_reacted, do: "bg-blue-100 border-blue-300", else: "bg-gray-50 border-gray-200 hover:bg-gray-100"
+          button_class = if user_reacted, do: "bg-orange-100 border-orange-300", else: "bg-gray-50 border-gray-200 hover:bg-gray-100"
         %>
         <form action={~p"/posts/#{@post.id}/reactions/#{emoji}"} method="post" class="inline">
           <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
@@ -47,7 +57,7 @@
   <% else %>
     <div class="space-y-4">
       <%= for comment <- @post.comments do %>
-        <div class="p-4 bg-gray-50 rounded-lg">
+        <div class="p-4 bg-orange-50 rounded-lg border border-orange-100">
           <div class="flex justify-between items-start">
             <div class="font-medium">{comment.user.display_name}</div>
             <div class="text-xs text-gray-500">{Calendar.strftime(comment.inserted_at, "%d %b %Y, %H:%M")}</div>
@@ -63,7 +73,7 @@
     <.simple_form :let={f} for={@comment_changeset} action={~p"/posts/#{@post.id}/comments"} id="comment-form">
       <.input field={f[:content]} type="textarea" label="Your comment" required rows={3} />
       <:actions>
-        <.button>Post comment</.button>
+        <.button class="bg-brand hover:bg-brand/90">Post comment</.button>
       </:actions>
     </.simple_form>
   </div>
