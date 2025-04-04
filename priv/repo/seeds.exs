@@ -509,3 +509,34 @@ case Repo.get_by(Message, id: 6) do
     })
   _ -> nil
 end
+
+# Reset sequence counters to avoid conflicts with explicit IDs
+# This ensures that auto-incrementing works correctly after seeding
+IO.puts("Resetting sequence counters...")
+YoungvisionPlatform.Repo.query!("""  
+DO $$
+DECLARE
+  max_id integer;
+BEGIN
+  -- Posts
+  SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM posts;
+  PERFORM setval('posts_id_seq', max_id);
+  
+  -- Comments
+  SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM comments;
+  PERFORM setval('comments_id_seq', max_id);
+  
+  -- Reactions
+  SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM reactions;
+  PERFORM setval('reactions_id_seq', max_id);
+  
+  -- Events
+  SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM events;
+  PERFORM setval('events_id_seq', max_id);
+  
+  -- Messages
+  SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM messages;
+  PERFORM setval('messages_id_seq', max_id);
+END $$;
+""")
+IO.puts("Sequence counters reset successfully!")

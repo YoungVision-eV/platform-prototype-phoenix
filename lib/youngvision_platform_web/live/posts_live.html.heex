@@ -63,11 +63,13 @@
             <!-- Reactions -->
             <div class="mt-4 flex items-center">
               <%= for emoji <- Community.list_valid_emojis() do %>
+                <% user_has_reacted = @current_user && Community.user_has_reacted?(@current_user.id, post.id, emoji) %>
                 <button 
                   phx-click="add-reaction" 
                   phx-value-post_id={post.id} 
                   phx-value-emoji={emoji}
-                  class="mr-2 text-2xl hover:bg-gray-100 rounded-full p-1 transition"
+                  class={"mr-2 text-2xl p-1 transition rounded-full " <> if user_has_reacted, do: "bg-orange-100 border border-orange-300", else: "hover:bg-gray-100"}
+                  title={if user_has_reacted, do: "Click to remove your reaction", else: "Click to add your reaction"}
                 >
                   <%= emoji %>
                   <% reaction_count = Enum.count(post.reactions, fn r -> r.emoji == emoji end) %>
@@ -134,11 +136,13 @@
         <!-- Reactions -->
         <div class="mt-4 flex items-center">
           <%= for emoji <- Community.list_valid_emojis() do %>
+            <% user_has_reacted = @current_user && Community.user_has_reacted?(@current_user.id, @post.id, emoji) %>
             <button 
               phx-click="add-reaction" 
               phx-value-post_id={@post.id} 
               phx-value-emoji={emoji}
-              class="mr-2 text-2xl hover:bg-gray-100 rounded-full p-1 transition"
+              class={"mr-2 text-2xl p-1 transition rounded-full " <> if user_has_reacted, do: "bg-orange-100 border border-orange-300", else: "hover:bg-gray-100"}
+              title={if user_has_reacted, do: "Click to remove your reaction", else: "Click to add your reaction"}
             >
               <%= emoji %>
               <% reaction_count = Enum.count(@post.reactions, fn r -> r.emoji == emoji end) %>
