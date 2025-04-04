@@ -67,6 +67,7 @@ defmodule YoungvisionPlatformWeb.Router do
     # Add post routes to the authenticated section
     resources "/posts", PostController, except: [:edit, :update, :delete]
     post "/posts/:post_id/comments", PostController, :add_comment
+    post "/posts/:post_id/reactions/:emoji", PostController, :toggle_reaction
 
     live_session :require_authenticated_user,
       on_mount: [{YoungvisionPlatformWeb.UserAuth, :ensure_authenticated}] do

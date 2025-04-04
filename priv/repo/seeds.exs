@@ -131,3 +131,64 @@ Repo.insert!(%Comment{
   user_id: jonas.id,
   post_id: post4.id
 })
+
+# Create sample reactions
+alias YoungvisionPlatform.Community.Reaction
+
+# Reactions for the welcome post
+Repo.insert!(%Reaction{
+  emoji: "👌",
+  user_id: maria.id,
+  post_id: post1.id
+})
+
+Repo.insert!(%Reaction{
+  emoji: "❤️",
+  user_id: thomas.id,
+  post_id: post1.id
+})
+
+Repo.insert!(%Reaction{
+  emoji: "❤️",
+  user_id: lisa.id,
+  post_id: post1.id
+})
+
+# Reactions for the Berlin meetup post
+Repo.insert!(%Reaction{
+  emoji: "👌",
+  user_id: jonas.id,
+  post_id: post2.id
+})
+
+Repo.insert!(%Reaction{
+  emoji: "🙏",
+  user_id: thomas.id,
+  post_id: post2.id
+})
+
+# Reactions for the photo gallery post
+Repo.insert!(%Reaction{
+  emoji: "✨",
+  user_id: maria.id,
+  post_id: post3.id
+})
+
+Repo.insert!(%Reaction{
+  emoji: "❤️",
+  user_id: jonas.id,
+  post_id: post3.id
+})
+
+# Reactions for the book club post
+Repo.insert!(%Reaction{
+  emoji: "🤔",
+  user_id: thomas.id,
+  post_id: post4.id
+})
+
+Repo.insert!(%Reaction{
+  emoji: "👌",
+  user_id: maria.id,
+  post_id: post4.id
+})

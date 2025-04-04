@@ -55,4 +55,26 @@ defmodule YoungvisionPlatformWeb.PostController do
         render(conn, :show, post: post, comment_changeset: changeset)
     end
   end
+
+  def toggle_reaction(conn, %{"post_id" => post_id, "emoji" => emoji}) do
+    post = Community.get_post!(post_id)
+    current_user = conn.assigns.current_user
+
+    case Community.toggle_reaction(current_user, post, emoji) do
+      {:ok, :created, _reaction} ->
+        conn
+        |> put_flash(:info, "Reaction added.")
+        |> redirect(to: ~p"/posts/#{post}")
+
+      {:ok, :deleted} ->
+        conn
+        |> put_flash(:info, "Reaction removed.")
+        |> redirect(to: ~p"/posts/#{post}")
+
+      {:error, _changeset} ->
+        conn
+        |> put_flash(:error, "Could not process reaction.")
+        |> redirect(to: ~p"/posts/#{post}")
+    end
+  end
 end

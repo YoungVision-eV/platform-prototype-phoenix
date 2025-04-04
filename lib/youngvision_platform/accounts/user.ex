@@ -13,6 +13,7 @@ defmodule YoungvisionPlatform.Accounts.User do
     # Add associations
     has_many :posts, YoungvisionPlatform.Community.Post
     has_many :comments, YoungvisionPlatform.Community.Comment
+    has_many :reactions, YoungvisionPlatform.Community.Reaction
 
     timestamps(type: :utc_datetime)
   end
