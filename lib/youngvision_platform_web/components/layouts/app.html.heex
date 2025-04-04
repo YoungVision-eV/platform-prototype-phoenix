@@ -15,7 +15,7 @@
       </a>
 
       <%= if @current_user do %>
-        <span class="text-sm text-zinc-600 mr-2">Hello, {@current_user.email}</span>
+        <span class="text-sm text-zinc-600 mr-2">Hello, {@current_user.display_name}</span>
         <a href="/posts/new" class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90">
           New Post <span aria-hidden="true">+</span>
         </a>

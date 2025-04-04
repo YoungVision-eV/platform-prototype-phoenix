@@ -23,25 +23,29 @@ Repo.delete_all("users")
 {:ok, jonas} =
   Accounts.register_user(%{
     email: "jonas@example.com",
-    password: "password123456"
+    password: "password123456",
+    display_name: "Jonas"
   })
 
 {:ok, maria} =
   Accounts.register_user(%{
     email: "maria@example.com",
-    password: "password123456"
+    password: "password123456",
+    display_name: "Maria"
   })
 
 {:ok, thomas} =
   Accounts.register_user(%{
     email: "thomas@example.com",
-    password: "password123456"
+    password: "password123456",
+    display_name: "Thomas"
   })
 
 {:ok, lisa} =
   Accounts.register_user(%{
     email: "lisa@example.com",
-    password: "password123456"
+    password: "password123456",
+    display_name: "Lisa"
   })
 
 # Create sample posts associated with users

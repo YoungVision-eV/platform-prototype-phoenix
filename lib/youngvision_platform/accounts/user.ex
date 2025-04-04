@@ -4,6 +4,7 @@ defmodule YoungvisionPlatform.Accounts.User do
 
   schema "users" do
     field :email, :string
+    field :display_name, :string
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
@@ -37,9 +38,16 @@ defmodule YoungvisionPlatform.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password])
+    |> cast(attrs, [:email, :password, :display_name])
     |> validate_email(opts)
     |> validate_password(opts)
+    |> validate_display_name()
+  end
+
+  defp validate_display_name(changeset) do
+    changeset
+    |> validate_required([:display_name])
+    |> validate_length(:display_name, min: 2, max: 50)
   end
 
   defp validate_email(changeset, opts) do
