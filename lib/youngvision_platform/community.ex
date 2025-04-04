@@ -10,27 +10,27 @@ defmodule YoungvisionPlatform.Community do
   alias YoungvisionPlatform.Community.Post
   alias YoungvisionPlatform.Community.Comment
   alias YoungvisionPlatform.Community.Reaction
-  
+
   @pubsub YoungvisionPlatform.PubSub
-  
+
   # PubSub topic for posts
   def posts_topic, do: "posts"
-  
+
   # Subscribe to post updates
   def subscribe_to_posts do
     PubSub.subscribe(@pubsub, posts_topic())
   end
-  
+
   # Broadcast when a post is created
   def broadcast_post_created(post) do
     PubSub.broadcast(@pubsub, posts_topic(), {:post_created, post})
   end
-  
+
   # Broadcast when a comment is added
   def broadcast_comment_added(comment) do
     PubSub.broadcast(@pubsub, posts_topic(), {:comment_added, comment})
   end
-  
+
   # Broadcast when a reaction is added
   def broadcast_reaction_added(reaction) do
     PubSub.broadcast(@pubsub, posts_topic(), {:reaction_added, reaction})
@@ -46,9 +46,13 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_posts do
-    Repo.all(from p in Post, order_by: [desc: p.inserted_at], preload: [:user, comments: [:user], reactions: [:user]])
+    Repo.all(
+      from p in Post,
+        order_by: [desc: p.inserted_at],
+        preload: [:user, comments: [:user], reactions: [:user]]
+    )
   end
-  
+
   @doc """
   Returns the list of posts by a specific user.
 
@@ -61,9 +65,9 @@ defmodule YoungvisionPlatform.Community do
   def list_posts_by_user(user) do
     Repo.all(
       from p in Post,
-      where: p.user_id == ^user.id,
-      order_by: [desc: p.inserted_at],
-      preload: [:user, comments: [:user], reactions: [:user]]
+        where: p.user_id == ^user.id,
+        order_by: [desc: p.inserted_at],
+        preload: [:user, comments: [:user], reactions: [:user]]
     )
   end
 
@@ -81,7 +85,8 @@ defmodule YoungvisionPlatform.Community do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id), do: Repo.get!(Post, id) |> Repo.preload([:user, comments: [:user], reactions: [:user]])
+  def get_post!(id),
+    do: Repo.get!(Post, id) |> Repo.preload([:user, comments: [:user], reactions: [:user]])
 
   @doc """
   Creates a post associated with a user.
@@ -104,7 +109,9 @@ defmodule YoungvisionPlatform.Community do
         post = Repo.preload(post, [:user])
         broadcast_post_created(post)
         {:ok, post}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -211,7 +218,9 @@ defmodule YoungvisionPlatform.Community do
         comment = Repo.preload(comment, [:user, :post])
         broadcast_comment_added(comment)
         {:ok, comment}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -340,9 +349,9 @@ defmodule YoungvisionPlatform.Community do
   def list_events_in_range(start_date, end_date) do
     Repo.all(
       from e in Event,
-      where: e.start_time >= ^start_date and e.start_time <= ^end_date,
-      order_by: [asc: e.start_time],
-      preload: [:user]
+        where: e.start_time >= ^start_date and e.start_time <= ^end_date,
+        order_by: [asc: e.start_time],
+        preload: [:user]
     )
   end
 
@@ -383,19 +392,20 @@ defmodule YoungvisionPlatform.Community do
     IO.inspect(user, label: "User in create_event")
     attrs_with_user = Map.put(attrs, "user_id", user.id)
     IO.inspect(attrs_with_user, label: "Attrs with user_id")
-    
+
     # Create the event with the user directly associated
     %Event{user: user}
     |> Event.changeset(attrs_with_user)
     |> Repo.insert()
     |> case do
-      {:ok, event} -> 
+      {:ok, event} ->
         # Force a reload with the user preloaded to ensure it's available
         preloaded = Repo.get!(Event, event.id) |> Repo.preload(:user)
         IO.inspect(preloaded, label: "Preloaded event")
         IO.inspect(preloaded.user, label: "Preloaded event user")
         {:ok, preloaded}
-      error -> 
+
+      error ->
         IO.inspect(error, label: "Error in create_event")
         error
     end
@@ -473,7 +483,9 @@ defmodule YoungvisionPlatform.Community do
         reaction = Repo.preload(reaction, [:user, :post])
         broadcast_reaction_added(reaction)
         {:ok, reaction}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -494,24 +506,27 @@ defmodule YoungvisionPlatform.Community do
     case get_reaction_by_user_post_emoji(user.id, post.id, emoji) do
       nil ->
         case create_reaction(user, post, %{"emoji" => emoji}) do
-          {:ok, reaction} -> 
+          {:ok, reaction} ->
             # Reaction already broadcast by create_reaction
             {:ok, :created, reaction}
-          {:error, changeset} -> 
+
+          {:error, changeset} ->
             {:error, changeset}
         end
 
       reaction ->
         case delete_reaction(reaction) do
-          {:ok, _deleted_reaction} -> 
+          {:ok, _deleted_reaction} ->
             # Broadcast the reaction removal
             PubSub.broadcast(
               @pubsub,
               posts_topic(),
               {:reaction_removed, %{post_id: post.id, emoji: emoji, user_id: user.id}}
             )
+
             {:ok, :deleted}
-          {:error, changeset} -> 
+
+          {:error, changeset} ->
             {:error, changeset}
         end
     end

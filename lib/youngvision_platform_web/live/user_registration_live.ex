@@ -34,7 +34,12 @@ defmodule YoungvisionPlatformWeb.UserRegistrationLive do
 
         <.input field={@form[:display_name]} type="text" label="Display Name" required />
         <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:location]} type="text" label="Home Town" placeholder="e.g. Berlin, Germany" />
+        <.input
+          field={@form[:location]}
+          type="text"
+          label="Home Town"
+          placeholder="e.g. Berlin, Germany"
+        />
         <.input field={@form[:password]} type="password" label="Password" required />
 
         <:actions>

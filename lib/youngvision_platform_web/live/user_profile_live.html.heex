@@ -5,19 +5,26 @@
       <div class="bg-orange-100 p-6">
         <div class="flex flex-col md:flex-row items-center md:items-start">
           <div class="w-24 h-24 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
-            <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@user)} alt="{@user.display_name}'s profile picture" class="w-full h-full object-cover" />
+            <img
+              src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@user)}
+              alt="{@user.display_name}'s profile picture"
+              class="w-full h-full object-cover"
+            />
           </div>
           <div class="text-center md:text-left">
-            <h1 class="text-2xl font-bold"><%= @user.display_name %></h1>
+            <h1 class="text-2xl font-bold">{@user.display_name}</h1>
             <%= if @user.pronouns do %>
-              <p class="text-gray-600 mb-2"><%= @user.pronouns %></p>
+              <p class="text-gray-600 mb-2">{@user.pronouns}</p>
             <% end %>
             <%= if @user.location do %>
-              <p class="text-gray-600 mb-2">📍 <%= @user.location %></p>
+              <p class="text-gray-600 mb-2">📍 {@user.location}</p>
             <% end %>
             <%= if @is_current_user do %>
               <div class="mt-4">
-                <.link patch={~p"/users/#{@user.id}/edit"} class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg">
+                <.link
+                  patch={~p"/users/#{@user.id}/edit"}
+                  class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg"
+                >
                   Edit Profile
                 </.link>
               </div>
@@ -26,17 +33,17 @@
         </div>
       </div>
       
-      <!-- Bio section -->
+<!-- Bio section -->
       <div class="p-6 border-b border-gray-200">
         <h2 class="text-xl font-semibold mb-4">About</h2>
         <%= if @user.bio do %>
-          <p class="text-gray-700 whitespace-pre-line"><%= @user.bio %></p>
+          <p class="text-gray-700 whitespace-pre-line">{@user.bio}</p>
         <% else %>
           <p class="text-gray-500 italic">No bio provided</p>
         <% end %>
       </div>
       
-      <!-- Posts section -->
+<!-- Posts section -->
       <div class="p-6">
         <h2 class="text-xl font-semibold mb-4">Posts</h2>
         <%= if Enum.empty?(@posts) do %>
@@ -45,16 +52,19 @@
           <div class="space-y-6">
             <%= for post <- @posts do %>
               <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <.link navigate={~p"/posts/#{post.id}"} class="text-lg font-medium text-orange-600 hover:text-orange-700">
-                  <%= post.title %>
+                <.link
+                  navigate={~p"/posts/#{post.id}"}
+                  class="text-lg font-medium text-orange-600 hover:text-orange-700"
+                >
+                  {post.title}
                 </.link>
                 <p class="text-gray-600 text-sm mt-1">
-                  Posted <%= Calendar.strftime(post.inserted_at, "%B %d, %Y") %>
+                  Posted {Calendar.strftime(post.inserted_at, "%B %d, %Y")}
                 </p>
-                <p class="text-gray-700 mt-2 line-clamp-3"><%= post.content %></p>
+                <p class="text-gray-700 mt-2 line-clamp-3">{post.content}</p>
                 <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                  <span><%= length(post.comments) %> comments</span>
-                  <span><%= length(post.reactions) %> reactions</span>
+                  <span>{length(post.comments)} comments</span>
+                  <span>{length(post.reactions)} reactions</span>
                 </div>
               </div>
             <% end %>
@@ -70,60 +80,95 @@
     <.header>
       <h2 class="text-lg font-semibold">Edit Profile</h2>
     </.header>
-    
-    <.simple_form for={@profile_form} id="profile-form" phx-submit="save-profile" phx-change="validate" multipart>
+
+    <.simple_form
+      for={@profile_form}
+      id="profile-form"
+      phx-submit="save-profile"
+      phx-change="validate"
+      multipart
+    >
       <div class="mb-6">
         <label class="block text-sm font-medium text-gray-700 mb-2">Profile Picture</label>
-        
+
         <div class="flex items-center space-x-4" phx-drop-target={@uploads.profile_picture.ref}>
           <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
-            <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@user)} alt="Profile picture" class="w-full h-full object-cover" />
+            <img
+              src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@user)}
+              alt="Profile picture"
+              class="w-full h-full object-cover"
+            />
           </div>
-          
+
           <div class="flex-1">
             <.live_file_input upload={@uploads.profile_picture} class="mt-1" />
             <p class="text-xs text-gray-500 mt-1">JPG, PNG, WebP up to 5MB</p>
-            
+
             <%= for entry <- @uploads.profile_picture.entries do %>
               <div class="mt-2">
                 <div class="flex items-center justify-between text-sm">
                   <div class="flex items-center space-x-2">
                     <.icon name="hero-document" class="h-4 w-4 text-gray-500" />
-                    <span class="text-gray-700"><%= entry.client_name %></span>
+                    <span class="text-gray-700">{entry.client_name}</span>
                   </div>
-                  <button type="button" phx-click="cancel-upload" phx-value-ref={entry.ref} class="text-red-500 hover:text-red-700">
+                  <button
+                    type="button"
+                    phx-click="cancel-upload"
+                    phx-value-ref={entry.ref}
+                    class="text-red-500 hover:text-red-700"
+                  >
                     <.icon name="hero-x-mark" class="h-4 w-4" />
                   </button>
                 </div>
                 <.live_img_preview entry={entry} class="mt-2 rounded-md max-h-40" />
-                <progress value={entry.progress} max="100" class="w-full h-1 mt-1 bg-gray-200 rounded-full overflow-hidden">
-                  <%= entry.progress %>%
+                <progress
+                  value={entry.progress}
+                  max="100"
+                  class="w-full h-1 mt-1 bg-gray-200 rounded-full overflow-hidden"
+                >
+                  {entry.progress}%
                 </progress>
                 <%= for err <- upload_errors(@uploads.profile_picture, entry) do %>
-                  <div class="text-red-500 text-xs mt-1"><%= error_to_string(err) %></div>
+                  <div class="text-red-500 text-xs mt-1">{error_to_string(err)}</div>
                 <% end %>
               </div>
             <% end %>
-            
+
             <%= for err <- upload_errors(@uploads.profile_picture) do %>
-              <div class="text-red-500 text-xs mt-1"><%= error_to_string(err) %></div>
+              <div class="text-red-500 text-xs mt-1">{error_to_string(err)}</div>
             <% end %>
           </div>
         </div>
       </div>
-      
+
       <.input field={@profile_form[:display_name]} type="text" label="Display Name" required />
-      <.input field={@profile_form[:pronouns]} type="text" label="Pronouns" placeholder="e.g. she/her, they/them" />
-      <.input field={@profile_form[:bio]} type="textarea" label="Bio" placeholder="Tell us about yourself..." rows={6} />
-      
+      <.input
+        field={@profile_form[:pronouns]}
+        type="text"
+        label="Pronouns"
+        placeholder="e.g. she/her, they/them"
+      />
+      <.input
+        field={@profile_form[:bio]}
+        type="textarea"
+        label="Bio"
+        placeholder="Tell us about yourself..."
+        rows={6}
+      />
+
       <div class="border-t border-gray-200 mt-6 pt-6">
         <h3 class="text-lg font-medium mb-4">Location Information</h3>
-        <.input field={@profile_form[:location]} type="text" label="Home Town" placeholder="e.g. Berlin, Germany" />
+        <.input
+          field={@profile_form[:location]}
+          type="text"
+          label="Home Town"
+          placeholder="e.g. Berlin, Germany"
+        />
         <div class="text-sm text-orange-700 mt-2 mb-4">
           Enter your home town to appear on the community map. This information is visible to all community members.
         </div>
       </div>
-      
+
       <:actions>
         <.button type="submit" phx-disable-with="Saving..." class="w-full">Save Profile</.button>
       </:actions>

@@ -202,7 +202,7 @@ defmodule YoungvisionPlatform.Accounts do
     |> User.location_changeset(attrs)
     |> Repo.update()
   end
-  
+
   @doc """
   Returns a changeset for changing a user's profile information.
   """
@@ -232,7 +232,8 @@ defmodule YoungvisionPlatform.Accounts do
       latitude: u.latitude,
       longitude: u.longitude,
       profile_picture: u.profile_picture,
-      email: u.email  # Include email for DiceBear avatar generation
+      # Include email for DiceBear avatar generation
+      email: u.email
     })
     |> Repo.all()
   end

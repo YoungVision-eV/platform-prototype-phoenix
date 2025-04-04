@@ -1,8 +1,18 @@
 defmodule YoungvisionPlatform.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
-  
-  @derive {Jason.Encoder, only: [:id, :display_name, :location, :latitude, :longitude, :pronouns, :bio, :profile_picture]}
+
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :display_name,
+             :location,
+             :latitude,
+             :longitude,
+             :pronouns,
+             :bio,
+             :profile_picture
+           ]}
 
   schema "users" do
     field :email, :string
@@ -11,12 +21,12 @@ defmodule YoungvisionPlatform.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
-    
+
     # Location fields
     field :location, :string
     field :latitude, :float
     field :longitude, :float
-    
+
     # Profile fields
     field :pronouns, :string
     field :bio, :string
@@ -55,7 +65,17 @@ defmodule YoungvisionPlatform.Accounts.User do
   """
   def registration_changeset(user, attrs, opts \\ []) do
     user
-    |> cast(attrs, [:email, :password, :display_name, :location, :latitude, :longitude, :pronouns, :bio, :profile_picture])
+    |> cast(attrs, [
+      :email,
+      :password,
+      :display_name,
+      :location,
+      :latitude,
+      :longitude,
+      :pronouns,
+      :bio,
+      :profile_picture
+    ])
     |> validate_email(opts)
     |> validate_password(opts)
     |> validate_display_name()
@@ -82,12 +102,20 @@ defmodule YoungvisionPlatform.Accounts.User do
   """
   def profile_changeset(user, attrs) do
     user
-    |> cast(attrs, [:pronouns, :bio, :display_name, :location, :latitude, :longitude, :profile_picture])
+    |> cast(attrs, [
+      :pronouns,
+      :bio,
+      :display_name,
+      :location,
+      :latitude,
+      :longitude,
+      :profile_picture
+    ])
     |> validate_display_name()
     |> validate_profile()
     |> validate_location()
   end
-  
+
   defp validate_profile(changeset) do
     changeset
     |> validate_length(:pronouns, max: 50)

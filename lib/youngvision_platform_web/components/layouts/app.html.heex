@@ -1,107 +1,136 @@
 <div class="bg-gradient-to-r from-orange-50 to-amber-50 min-h-screen">
-<header class="px-4 sm:px-6 lg:px-8">
-  <div class="flex items-center justify-between border-b border-orange-100 py-3">
-    <div class="flex items-center gap-4">
-      <a href="/" class="flex items-center gap-2">
-        <img src={~p"/images/logo.svg"} width="36" />
-        <span class="text-xl font-bold text-brand">Community Platform</span>
-      </a>
-    </div>
-    <nav>
-      <ul class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
-        <li>
-          <a href="/" class="hover:text-zinc-700">
-            Home
-          </a>
-        </li>
-        <li>
-          <a href="/posts" class="hover:text-zinc-700">
-            Posts
-          </a>
-        </li>
-        <li>
-          <a href="/community/map" class="hover:text-zinc-700">
-            Community Map
-          </a>
-        </li>
-        <li>
-          <a href="/community/calendar" class="hover:text-zinc-700">
-            Calendar
-          </a>
-        </li>
-        <%= if @current_user do %>
-        <li>
-          <a href="/messages" class="hover:text-zinc-700 flex items-center">
-            Messages
-            <%= if assigns[:unread_message_count] && @unread_message_count > 0 do %>
-              <span class="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"><%= @unread_message_count %></span>
-            <% end %>
-          </a>
-        </li>
-        <% end %>
-        
-        <%= if @current_user do %>
+  <header class="px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between border-b border-orange-100 py-3">
+      <div class="flex items-center gap-4">
+        <a href="/" class="flex items-center gap-2">
+          <img src={~p"/images/logo.svg"} width="36" />
+          <span class="text-xl font-bold text-brand">Community Platform</span>
+        </a>
+      </div>
+      <nav>
+        <ul class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
           <li>
-            <a href="/posts/new" class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90">
-              New Post <span aria-hidden="true">+</span>
+            <a href="/" class="hover:text-zinc-700">
+              Home
             </a>
           </li>
-          <li class="ml-4 flex items-center">
-            <div class="relative" id="user-menu" phx-hook="UserMenu">
-              <button 
-                class="flex items-center gap-1 hover:text-zinc-700 focus:outline-none"
-                id="user-menu-button"
-                aria-expanded="false"
-                aria-haspopup="true"
-                phx-click={JS.toggle(to: "#user-menu-dropdown")}
+          <li>
+            <a href="/posts" class="hover:text-zinc-700">
+              Posts
+            </a>
+          </li>
+          <li>
+            <a href="/community/map" class="hover:text-zinc-700">
+              Community Map
+            </a>
+          </li>
+          <li>
+            <a href="/community/calendar" class="hover:text-zinc-700">
+              Calendar
+            </a>
+          </li>
+          <%= if @current_user do %>
+            <li>
+              <a href="/messages" class="hover:text-zinc-700 flex items-center">
+                Messages
+                <%= if assigns[:unread_message_count] && @unread_message_count > 0 do %>
+                  <span class="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {@unread_message_count}
+                  </span>
+                <% end %>
+              </a>
+            </li>
+          <% end %>
+
+          <%= if @current_user do %>
+            <li>
+              <a
+                href="/posts/new"
+                class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90"
               >
-                <span>Hello, {@current_user.display_name}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              <div 
-                id="user-menu-dropdown"
-                class="absolute right-0 mt-2 w-48 bg-orange-50 rounded-md shadow-lg py-1 z-10 hidden border border-orange-100"
-              >
-                <.link href="/messages" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
-                  Messages
-                </.link>
-                <.link href={~p"/users/#{@current_user.id}"} class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
-                  My Profile
-                </.link>
-                <.link href="/users/settings" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
-                  Settings
-                </.link>
-                <.link href="/users/log_out" method="delete" class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100">
-                  Log out
-                </.link>
+                New Post <span aria-hidden="true">+</span>
+              </a>
+            </li>
+            <li class="ml-4 flex items-center">
+              <div class="relative" id="user-menu" phx-hook="UserMenu">
+                <button
+                  class="flex items-center gap-1 hover:text-zinc-700 focus:outline-none"
+                  id="user-menu-button"
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  phx-click={JS.toggle(to: "#user-menu-dropdown")}
+                >
+                  <span>Hello, {@current_user.display_name}</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  id="user-menu-dropdown"
+                  class="absolute right-0 mt-2 w-48 bg-orange-50 rounded-md shadow-lg py-1 z-10 hidden border border-orange-100"
+                >
+                  <.link
+                    href="/messages"
+                    class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100"
+                  >
+                    Messages
+                  </.link>
+                  <.link
+                    href={~p"/users/#{@current_user.id}"}
+                    class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100"
+                  >
+                    My Profile
+                  </.link>
+                  <.link
+                    href="/users/settings"
+                    class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100"
+                  >
+                    Settings
+                  </.link>
+                  <.link
+                    href="/users/log_out"
+                    method="delete"
+                    class="block px-4 py-2 text-sm text-orange-800 hover:bg-orange-100"
+                  >
+                    Log out
+                  </.link>
+                </div>
               </div>
-            </div>
-          </li>
-        <% else %>
-          <li>
-            <.link href="/users/register" class="hover:text-zinc-700">
-              Register
-            </.link>
-          </li>
-          <li>
-            <.link
-              href="/users/log_in"
-              class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90"
-            >
-              Log in
-            </.link>
-          </li>
-        <% end %>
-      </ul>
-    </nav>
-  </div>
-</header>
-<main class="px-4 py-10 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-3xl">
-    <.flash_group flash={@flash} />
-    {@inner_content}
-  </div>
-</main>
+            </li>
+          <% else %>
+            <li>
+              <.link href="/users/register" class="hover:text-zinc-700">
+                Register
+              </.link>
+            </li>
+            <li>
+              <.link
+                href="/users/log_in"
+                class="rounded-lg bg-brand px-2 py-1 text-white hover:bg-brand/90"
+              >
+                Log in
+              </.link>
+            </li>
+          <% end %>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="px-4 py-10 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl">
+      <.flash_group flash={@flash} />
+      {@inner_content}
+    </div>
+  </main>
 </div>

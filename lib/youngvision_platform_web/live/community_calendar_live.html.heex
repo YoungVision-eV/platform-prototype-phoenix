@@ -2,16 +2,27 @@
   <div class="flex justify-between items-center mb-8">
     <h1 class="text-3xl font-bold">Community Calendar</h1>
     <div class="flex items-center space-x-4">
-      <button phx-click="change-month" phx-value-direction="prev" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      <button
+        phx-click="change-month"
+        phx-value-direction="prev"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
         Previous Month
       </button>
       <h2 class="text-xl font-semibold">
-        <%= Calendar.strftime(@current_date, "%B %Y") %>
+        {Calendar.strftime(@current_date, "%B %Y")}
       </h2>
-      <button phx-click="change-month" phx-value-direction="next" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+      <button
+        phx-click="change-month"
+        phx-value-direction="next"
+        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      >
         Next Month
       </button>
-      <.link patch={~p"/community/calendar/new"} class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+      <.link
+        patch={~p"/community/calendar/new"}
+        class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+      >
         Add Event
       </.link>
     </div>
@@ -31,19 +42,19 @@
     <div class="grid grid-cols-7 gap-px bg-gray-200">
       <%= for week <- 0..5 do %>
         <%= for day_of_week <- 0..6 do %>
-          <% 
-            day_number = week * 7 + day_of_week - first_day_of_month(@current_date) + 1
-            is_current_month = day_number > 0 && day_number <= days_in_month(@current_date)
-            
-            current_date = @current_date
-            date = if is_current_month do
+          <% day_number = week * 7 + day_of_week - first_day_of_month(@current_date) + 1
+          is_current_month = day_number > 0 && day_number <= days_in_month(@current_date)
+
+          current_date = @current_date
+
+          date =
+            if is_current_month do
               %{current_date | day: day_number}
             else
               nil
             end
-            
-            day_events = if date, do: events_for_day(@events, date), else: []
-          %>
+
+          day_events = if date, do: events_for_day(@events, date), else: [] %>
           <div class={[
             "min-h-[120px] p-2 bg-white relative",
             if(!is_current_month, do: "bg-gray-50 text-gray-400")
@@ -52,35 +63,52 @@
               <div class="flex justify-between">
                 <span class={[
                   "font-medium",
-                  if(Date.compare(date, Date.utc_today()) == :eq, do: "bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center")
+                  if(Date.compare(date, Date.utc_today()) == :eq,
+                    do:
+                      "bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center"
+                  )
                 ]}>
-                  <%= day_number %>
+                  {day_number}
                 </span>
               </div>
               <div class="mt-1 space-y-1 max-h-[80px] overflow-y-auto">
                 <%= for event <- day_events do %>
-                  <% 
-                    start_date = DateTime.to_date(event.start_time)
-                    end_date = DateTime.to_date(event.end_time)
-                    is_start_day = Date.compare(date, start_date) == :eq
-                    is_end_day = Date.compare(date, end_date) == :eq
-                    is_middle_day = Date.compare(date, start_date) == :gt && Date.compare(date, end_date) == :lt
-                    
-                    # Different background colors based on event position
-                    bg_color = cond do
-                      is_start_day && is_end_day -> "bg-blue-100" # Single day event
-                      is_start_day -> "bg-blue-100 border-l-4 border-blue-400" # First day
-                      is_end_day -> "bg-blue-100 border-r-4 border-blue-400" # Last day
-                      is_middle_day -> "bg-blue-50 border-l border-r border-blue-400" # Middle day
-                    end
-                  %>
-                  <.link patch={~p"/community/calendar/#{event.id}"} class={["block p-1 text-xs rounded hover:bg-blue-200", bg_color]}>
+                  <% start_date = DateTime.to_date(event.start_time)
+                  end_date = DateTime.to_date(event.end_time)
+                  is_start_day = Date.compare(date, start_date) == :eq
+                  is_end_day = Date.compare(date, end_date) == :eq
+
+                  is_middle_day =
+                    Date.compare(date, start_date) == :gt && Date.compare(date, end_date) == :lt
+
+                  # Different background colors based on event position
+                  bg_color =
+                    cond do
+                      # Single day event
+                      is_start_day && is_end_day -> "bg-blue-100"
+                      # First day
+                      is_start_day -> "bg-blue-100 border-l-4 border-blue-400"
+                      # Last day
+                      is_end_day -> "bg-blue-100 border-r-4 border-blue-400"
+                      # Middle day
+                      is_middle_day -> "bg-blue-50 border-l border-r border-blue-400"
+                    end %>
+                  <.link
+                    patch={~p"/community/calendar/#{event.id}"}
+                    class={["block p-1 text-xs rounded hover:bg-blue-200", bg_color]}
+                  >
                     <div class="flex items-center">
                       <%= if is_start_day do %>
                         <div class="w-5 h-5 rounded-full overflow-hidden mr-1 flex-shrink-0">
-                          <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(event.user)} 
-                               alt="#{event.user.display_name}'s profile picture" 
-                               class="w-full h-full object-cover" />
+                          <img
+                            src={
+                              YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(
+                                event.user
+                              )
+                            }
+                            alt="#{event.user.display_name}'s profile picture"
+                            class="w-full h-full object-cover"
+                          />
                         </div>
                       <% else %>
                         <div class="w-5 h-5 flex-shrink-0 mr-1 flex items-center justify-center">
@@ -88,10 +116,10 @@
                         </div>
                       <% end %>
                       <div class="truncate">
-                        <span class="font-medium"><%= event.title %></span>
+                        <span class="font-medium">{event.title}</span>
                         <div class="text-xs text-gray-600">
                           <%= if is_start_day do %>
-                            <%= Calendar.strftime(event.start_time, "%H:%M") %>
+                            {Calendar.strftime(event.start_time, "%H:%M")}
                           <% else %>
                             <span class="italic">continues</span>
                           <% end %>
@@ -102,7 +130,11 @@
                 <% end %>
               </div>
             <% else %>
-              <span class="text-gray-400"><%= if day_number > days_in_month(@current_date), do: day_number - days_in_month(@current_date), else: day_number + days_in_month(Date.add(@current_date, -40)) %></span>
+              <span class="text-gray-400">
+                {if day_number > days_in_month(@current_date),
+                  do: day_number - days_in_month(@current_date),
+                  else: day_number + days_in_month(Date.add(@current_date, -40))}
+              </span>
             <% end %>
           </div>
         <% end %>
@@ -118,78 +150,98 @@
         <.header>
           <h2 class="text-lg font-semibold">New Event</h2>
         </.header>
-        <.simple_form
-          for={@form}
-          id="event-form"
-          phx-submit="save"
-        >
+        <.simple_form for={@form} id="event-form" phx-submit="save">
           <.input field={@form[:title]} type="text" label="Title" required />
           <.input field={@form[:description]} type="textarea" label="Description" required />
           <.input field={@form[:location]} type="text" label="Location" required />
           <.input field={@form[:start_time]} type="datetime-local" label="Start Time" required />
           <.input field={@form[:end_time]} type="datetime-local" label="End Time" required />
-          
+
           <:actions>
             <.button type="submit" phx-disable-with="Saving...">Save Event</.button>
-            <button type="button" phx-click="close-modal" class="ml-2 text-gray-600 hover:underline">Cancel</button>
+            <button
+              type="button"
+              phx-click="close-modal"
+              class="ml-2 text-gray-600 hover:underline"
+            >
+              Cancel
+            </button>
           </:actions>
         </.simple_form>
-        
       <% :edit -> %>
         <.header>
           <h2 class="text-lg font-semibold">Edit Event</h2>
         </.header>
-        <.simple_form
-          for={@form}
-          id="event-form"
-          phx-submit="save"
-        >
+        <.simple_form for={@form} id="event-form" phx-submit="save">
           <.input field={@form[:title]} type="text" label="Title" required />
           <.input field={@form[:description]} type="textarea" label="Description" required />
           <.input field={@form[:location]} type="text" label="Location" required />
           <.input field={@form[:start_time]} type="datetime-local" label="Start Time" required />
           <.input field={@form[:end_time]} type="datetime-local" label="End Time" required />
-          
+
           <:actions>
             <.button type="submit" phx-disable-with="Saving...">Update Event</.button>
-            <button type="button" phx-click="close-modal" class="ml-2 text-gray-600 hover:underline">Cancel</button>
+            <button
+              type="button"
+              phx-click="close-modal"
+              class="ml-2 text-gray-600 hover:underline"
+            >
+              Cancel
+            </button>
           </:actions>
         </.simple_form>
-        
       <% :show -> %>
         <.header>
-          <h2 class="text-xl font-semibold"><%= @selected_event.title %></h2>
+          <h2 class="text-xl font-semibold">{@selected_event.title}</h2>
         </.header>
         <div class="py-4">
           <div class="mb-4">
             <div class="flex items-center mb-3">
               <div class="w-10 h-10 rounded-full overflow-hidden mr-3 flex-shrink-0">
-                <img src={YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@selected_event.user)} 
-                     alt="#{@selected_event.user.display_name}'s profile picture" 
-                     class="w-full h-full object-cover" />
+                <img
+                  src={
+                    YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(
+                      @selected_event.user
+                    )
+                  }
+                  alt="#{@selected_event.user.display_name}'s profile picture"
+                  class="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <p class="text-sm text-gray-500">
-                  Posted by 
-                  <.link navigate={~p"/users/#{@selected_event.user.id}"} class="text-orange-500 hover:underline">
-                    <%= @selected_event.user.display_name %>
+                  Posted by
+                  <.link
+                    navigate={~p"/users/#{@selected_event.user.id}"}
+                    class="text-orange-500 hover:underline"
+                  >
+                    {@selected_event.user.display_name}
                   </.link>
                 </p>
               </div>
             </div>
             <p class="text-sm text-gray-500">
-              <%= Calendar.strftime(@selected_event.start_time, "%A, %B %d, %Y at %H:%M") %> - 
-              <%= Calendar.strftime(@selected_event.end_time, "%A, %B %d, %Y at %H:%M") %>
+              {Calendar.strftime(@selected_event.start_time, "%A, %B %d, %Y at %H:%M")} - {Calendar.strftime(
+                @selected_event.end_time,
+                "%A, %B %d, %Y at %H:%M"
+              )}
             </p>
-            <p class="text-sm text-gray-500">Location: <%= @selected_event.location %></p>
+            <p class="text-sm text-gray-500">Location: {@selected_event.location}</p>
           </div>
-          <div class="whitespace-pre-wrap"><%= @selected_event.description %></div>
+          <div class="whitespace-pre-wrap">{@selected_event.description}</div>
         </div>
         <div class="mt-4 flex justify-end">
           <%= if @current_user && @current_user.id == @selected_event.user_id do %>
-            <.link patch={~p"/community/calendar/#{@selected_event}/edit"} class="text-blue-500 hover:underline">Edit</.link>
+            <.link
+              patch={~p"/community/calendar/#{@selected_event}/edit"}
+              class="text-blue-500 hover:underline"
+            >
+              Edit
+            </.link>
           <% end %>
-          <button phx-click="close-modal" class="ml-2 text-blue-500 hover:underline">Close</button>
+          <button phx-click="close-modal" class="ml-2 text-blue-500 hover:underline">
+            Close
+          </button>
         </div>
     <% end %>
   </.modal>

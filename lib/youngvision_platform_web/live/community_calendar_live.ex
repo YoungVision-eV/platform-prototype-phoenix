@@ -8,25 +8,24 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
   @impl true
   def mount(_params, _session, socket) do
     IO.inspect(socket.assigns.current_user, label: "Current user in mount")
-    
+
     current_date = Date.utc_today()
     start_of_month = Date.beginning_of_month(current_date)
     end_of_month = Date.end_of_month(current_date)
-    
+
     start_datetime = DateTime.new!(start_of_month, ~T[00:00:00], "Etc/UTC")
     end_datetime = DateTime.new!(end_of_month, ~T[23:59:59], "Etc/UTC")
-    
+
     events = Community.list_events_in_range(start_datetime, end_datetime)
-    
-    {:ok, 
-      socket
-      |> assign(:current_date, current_date)
-      |> assign(:events, events)
-      |> assign(:form, to_form(Community.change_event(%Event{})))
-      |> assign(:show_modal, false)
-      |> assign(:modal_type, nil)
-      |> assign(:selected_event, nil)
-    }
+
+    {:ok,
+     socket
+     |> assign(:current_date, current_date)
+     |> assign(:events, events)
+     |> assign(:form, to_form(Community.change_event(%Event{})))
+     |> assign(:show_modal, false)
+     |> assign(:modal_type, nil)
+     |> assign(:selected_event, nil)}
   end
 
   @impl true
@@ -49,6 +48,7 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
 
   defp apply_action(socket, :edit, %{"id" => id}) do
     event = Community.get_event!(id)
+
     socket
     |> assign(:page_title, "Edit Event")
     |> assign(:show_modal, true)
@@ -62,7 +62,7 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
     event = Community.get_event!(id)
     IO.inspect(event, label: "Event in show action")
     IO.inspect(event.user, label: "Event user in show action")
-    
+
     socket
     |> assign(:page_title, event.title)
     |> assign(:show_modal, true)
@@ -73,36 +73,35 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
   @impl true
   def handle_event("change-month", %{"direction" => direction}, socket) do
     current_date = socket.assigns.current_date
-    
-    new_date = case direction do
-      "prev" -> Date.add(current_date, -Date.days_in_month(current_date))
-      "next" -> Date.add(current_date, Date.days_in_month(current_date))
-    end
-    
+
+    new_date =
+      case direction do
+        "prev" -> Date.add(current_date, -Date.days_in_month(current_date))
+        "next" -> Date.add(current_date, Date.days_in_month(current_date))
+      end
+
     start_of_month = Date.beginning_of_month(new_date)
     end_of_month = Date.end_of_month(new_date)
-    
+
     start_datetime = DateTime.new!(start_of_month, ~T[00:00:00], "Etc/UTC")
     end_datetime = DateTime.new!(end_of_month, ~T[23:59:59], "Etc/UTC")
-    
+
     events = Community.list_events_in_range(start_datetime, end_datetime)
-    
-    {:noreply, 
-      socket
-      |> assign(:current_date, new_date)
-      |> assign(:events, events)
-    }
+
+    {:noreply,
+     socket
+     |> assign(:current_date, new_date)
+     |> assign(:events, events)}
   end
 
   @impl true
   def handle_event("close-modal", _, socket) do
-    {:noreply, 
-      socket
-      |> assign(:show_modal, false)
-      |> assign(:modal_type, nil)
-      |> assign(:selected_event, nil)
-      |> push_patch(to: ~p"/community/calendar")
-    }
+    {:noreply,
+     socket
+     |> assign(:show_modal, false)
+     |> assign(:modal_type, nil)
+     |> assign(:selected_event, nil)
+     |> push_patch(to: ~p"/community/calendar")}
   end
 
   @impl true
@@ -112,28 +111,28 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
 
   defp save_event(socket, :new, event_params) do
     IO.inspect(socket.assigns.current_user, label: "Current user in save_event")
-    
+
     case Community.create_event(socket.assigns.current_user, event_params) do
       {:ok, event} ->
         IO.inspect(event, label: "Event after creation")
         IO.inspect(event.user, label: "Event user after creation")
-        
+
         start_of_month = Date.beginning_of_month(socket.assigns.current_date)
         end_of_month = Date.end_of_month(socket.assigns.current_date)
-        
+
         start_datetime = DateTime.new!(start_of_month, ~T[00:00:00], "Etc/UTC")
         end_datetime = DateTime.new!(end_of_month, ~T[23:59:59], "Etc/UTC")
-        
+
         events = Community.list_events_in_range(start_datetime, end_datetime)
-        
+
         {:noreply,
-          socket
-          |> assign(:events, events)
-          |> assign(:show_modal, false)
-          |> assign(:modal_type, nil)
-          |> assign(:selected_event, event)
-          |> put_flash(:info, "Event created successfully")
-          |> push_patch(to: ~p"/community/calendar/#{event.id}")}
+         socket
+         |> assign(:events, events)
+         |> assign(:show_modal, false)
+         |> assign(:modal_type, nil)
+         |> assign(:selected_event, event)
+         |> put_flash(:info, "Event created successfully")
+         |> push_patch(to: ~p"/community/calendar/#{event.id}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -147,20 +146,20 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
       {:ok, updated_event} ->
         start_of_month = Date.beginning_of_month(socket.assigns.current_date)
         end_of_month = Date.end_of_month(socket.assigns.current_date)
-        
+
         start_datetime = DateTime.new!(start_of_month, ~T[00:00:00], "Etc/UTC")
         end_datetime = DateTime.new!(end_of_month, ~T[23:59:59], "Etc/UTC")
-        
+
         events = Community.list_events_in_range(start_datetime, end_datetime)
-        
+
         {:noreply,
-          socket
-          |> assign(:events, events)
-          |> assign(:show_modal, false)
-          |> assign(:modal_type, nil)
-          |> assign(:selected_event, updated_event)
-          |> put_flash(:info, "Event updated successfully")
-          |> push_patch(to: ~p"/community/calendar/#{updated_event.id}")}
+         socket
+         |> assign(:events, events)
+         |> assign(:show_modal, false)
+         |> assign(:modal_type, nil)
+         |> assign(:selected_event, updated_event)
+         |> put_flash(:info, "Event updated successfully")
+         |> push_patch(to: ~p"/community/calendar/#{updated_event.id}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign(socket, form: to_form(changeset))}
@@ -175,17 +174,18 @@ defmodule YoungvisionPlatformWeb.CommunityCalendarLive do
     date
     |> Date.beginning_of_month()
     |> Date.day_of_week()
-    |> then(fn day -> if day == 7, do: 0, else: day end) # Convert Sunday from 7 to 0 for easier calculations
+    # Convert Sunday from 7 to 0 for easier calculations
+    |> then(fn day -> if day == 7, do: 0, else: day end)
   end
 
   defp events_for_day(events, date) do
-    Enum.filter(events, fn event -> 
+    Enum.filter(events, fn event ->
       start_date = DateTime.to_date(event.start_time)
       end_date = DateTime.to_date(event.end_time)
-      
+
       # Check if the date is between start and end dates (inclusive)
       (Date.compare(date, start_date) == :eq || Date.compare(date, start_date) == :gt) &&
-      (Date.compare(date, end_date) == :eq || Date.compare(date, end_date) == :lt)
+        (Date.compare(date, end_date) == :eq || Date.compare(date, end_date) == :lt)
     end)
   end
 end

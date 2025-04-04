@@ -5,12 +5,13 @@ defmodule YoungvisionPlatformWeb.CommunityMapLive do
 
   def mount(_params, _session, socket) do
     users_with_location = Accounts.list_users_with_location()
-    
+
     # Add profile picture URLs to each user
-    users_with_profile_pics = Enum.map(users_with_location, fn user ->
-      Map.put(user, :profile_picture_url, ProfilePictureHelper.profile_picture_url(user))
-    end)
-    
+    users_with_profile_pics =
+      Enum.map(users_with_location, fn user ->
+        Map.put(user, :profile_picture_url, ProfilePictureHelper.profile_picture_url(user))
+      end)
+
     {:ok, assign(socket, users: users_with_profile_pics)}
   end
 
@@ -23,11 +24,22 @@ defmodule YoungvisionPlatformWeb.CommunityMapLive do
       </.header>
 
       <div class="mt-8 bg-orange-100 p-6 rounded-lg border border-orange-100 shadow-sm">
-        <div id="community-map" class="h-[500px] w-full rounded-lg shadow-sm" phx-hook="CommunityMap" data-users={Jason.encode!(@users)}></div>
-        
+        <div
+          id="community-map"
+          class="h-[500px] w-full rounded-lg shadow-sm"
+          phx-hook="CommunityMap"
+          data-users={Jason.encode!(@users)}
+        >
+        </div>
+
         <div class="mt-4 text-sm text-orange-700">
           <p>Each pin represents a community member's location. Click on a pin to see who's there!</p>
-          <p class="mt-2">Want to add your location? Update your profile on your <.link navigate={~p"/users/#{@current_user.id}"} class="font-semibold text-brand hover:text-orange-700 hover:underline">profile page</.link>.</p>
+          <p class="mt-2">
+            Want to add your location? Update your profile on your <.link
+              navigate={~p"/users/#{@current_user.id}"}
+              class="font-semibold text-brand hover:text-orange-700 hover:underline"
+            >profile page</.link>.
+          </p>
         </div>
       </div>
     </div>

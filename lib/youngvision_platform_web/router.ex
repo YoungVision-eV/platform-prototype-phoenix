@@ -71,24 +71,24 @@ defmodule YoungvisionPlatformWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
       live "/community/map", CommunityMapLive, :index
-      
+
       # Calendar routes
       live "/community/calendar", CommunityCalendarLive, :index
       live "/community/calendar/new", CommunityCalendarLive, :new
       live "/community/calendar/:id", CommunityCalendarLive, :show
       live "/community/calendar/:id/edit", CommunityCalendarLive, :edit
-      
+
       # Messaging routes
       live "/messages", MessagingLive, :index
       live "/messages/new", MessagingLive, :new
       live "/messages/:id", MessagingLive, :show
-      
+
       # Posts routes with LiveView for real-time updates
       live "/", PostsLive, :index
       live "/posts", PostsLive, :index
       live "/posts/new", PostsLive, :new
       live "/posts/:id", PostsLive, :show
-      
+
       # User profile routes
       live "/users/:id", UserProfileLive, :show
       live "/users/:id/edit", UserProfileLive, :edit

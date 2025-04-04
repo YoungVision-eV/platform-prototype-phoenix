@@ -18,11 +18,10 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       posts = Community.list_posts()
 
       {:ok,
-        socket
-        |> assign(:posts, posts)
-        |> assign(:post, nil)
-        |> assign(:comment_form, to_form(%{"content" => ""}))
-      }
+       socket
+       |> assign(:posts, posts)
+       |> assign(:post, nil)
+       |> assign(:comment_form, to_form(%{"content" => ""}))}
     else
       {:ok, redirect(socket, to: ~p"/users/log_in")}
     end
@@ -31,9 +30,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   @impl true
   def handle_params(params, _uri, socket) do
     {:noreply,
-      socket
-      |> apply_action(socket.assigns.live_action, params)
-    }
+     socket
+     |> apply_action(socket.assigns.live_action, params)}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -59,35 +57,33 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     case Community.create_post(socket.assigns.current_user, post_params) do
       {:ok, post} ->
         {:noreply,
-          socket
-          |> put_flash(:info, "Post created successfully")
-          |> push_navigate(to: ~p"/posts/#{post.id}")
-        }
+         socket
+         |> put_flash(:info, "Post created successfully")
+         |> push_navigate(to: ~p"/posts/#{post.id}")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,
-          socket
-          |> put_flash(:error, "Error creating post")
-          |> assign(:changeset, changeset)
-        }
+         socket
+         |> put_flash(:error, "Error creating post")
+         |> assign(:changeset, changeset)}
     end
   end
 
   @impl true
   def handle_event("add-comment", %{"content" => content}, socket) do
-    case Community.create_comment(socket.assigns.current_user, socket.assigns.post, %{"content" => content}) do
+    case Community.create_comment(socket.assigns.current_user, socket.assigns.post, %{
+           "content" => content
+         }) do
       {:ok, _comment} ->
         {:noreply,
-          socket
-          |> assign(:comment_form, to_form(%{"content" => ""}))
-          |> put_flash(:info, "Comment added successfully")
-        }
+         socket
+         |> assign(:comment_form, to_form(%{"content" => ""}))
+         |> put_flash(:info, "Comment added successfully")}
 
       {:error, _changeset} ->
         {:noreply,
-          socket
-          |> put_flash(:error, "Error adding comment")
-        }
+         socket
+         |> put_flash(:error, "Error adding comment")}
     end
   end
 
@@ -104,17 +100,17 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
       {:error, _changeset} ->
         {:noreply,
-          socket
-          |> put_flash(:error, "Error adding reaction")
-        }
+         socket
+         |> put_flash(:error, "Error adding reaction")}
     end
   end
 
   # Handle broadcast events
   @impl true
   def handle_info({:post_created, post}, socket) do
-    updated_posts = [post | socket.assigns.posts]
-    |> Enum.sort_by(fn p -> p.inserted_at end, {:desc, DateTime})
+    updated_posts =
+      [post | socket.assigns.posts]
+      |> Enum.sort_by(fn p -> p.inserted_at end, {:desc, DateTime})
 
     {:noreply, assign(socket, :posts, updated_posts)}
   end
@@ -122,21 +118,27 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   @impl true
   def handle_info({:comment_added, comment}, socket) do
     # Find the post in our list and update its comments
-    updated_posts = Enum.map(socket.assigns.posts, fn post ->
-      if post.id == comment.post_id do
-        %{post | comments: [comment | (post.comments || [])]}
-      else
-        post
-      end
-    end)
+    updated_posts =
+      Enum.map(socket.assigns.posts, fn post ->
+        if post.id == comment.post_id do
+          %{post | comments: [comment | post.comments || []]}
+        else
+          post
+        end
+      end)
 
     # Also update the single post view if we're looking at that post
-    socket = if socket.assigns.post && socket.assigns.post.id == comment.post_id do
-      updated_post = %{socket.assigns.post | comments: [comment | (socket.assigns.post.comments || [])]}
-      assign(socket, :post, updated_post)
-    else
-      socket
-    end
+    socket =
+      if socket.assigns.post && socket.assigns.post.id == comment.post_id do
+        updated_post = %{
+          socket.assigns.post
+          | comments: [comment | socket.assigns.post.comments || []]
+        }
+
+        assign(socket, :post, updated_post)
+      else
+        socket
+      end
 
     {:noreply, assign(socket, :posts, updated_posts)}
   end
@@ -144,49 +146,64 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   @impl true
   def handle_info({:reaction_added, reaction}, socket) do
     # Find the post in our list and update its reactions
-    updated_posts = Enum.map(socket.assigns.posts, fn post ->
-      if post.id == reaction.post_id do
-        %{post | reactions: [reaction | (post.reactions || [])]}
-      else
-        post
-      end
-    end)
+    updated_posts =
+      Enum.map(socket.assigns.posts, fn post ->
+        if post.id == reaction.post_id do
+          %{post | reactions: [reaction | post.reactions || []]}
+        else
+          post
+        end
+      end)
 
     # Also update the single post view if we're looking at that post
-    socket = if socket.assigns.post && socket.assigns.post.id == reaction.post_id do
-      updated_post = %{socket.assigns.post | reactions: [reaction | (socket.assigns.post.reactions || [])]}
-      assign(socket, :post, updated_post)
-    else
-      socket
-    end
+    socket =
+      if socket.assigns.post && socket.assigns.post.id == reaction.post_id do
+        updated_post = %{
+          socket.assigns.post
+          | reactions: [reaction | socket.assigns.post.reactions || []]
+        }
+
+        assign(socket, :post, updated_post)
+      else
+        socket
+      end
 
     {:noreply, assign(socket, :posts, updated_posts)}
   end
 
   @impl true
-  def handle_info({:reaction_removed, %{post_id: post_id, emoji: emoji, user_id: user_id}}, socket) do
+  def handle_info(
+        {:reaction_removed, %{post_id: post_id, emoji: emoji, user_id: user_id}},
+        socket
+      ) do
     # Find the post in our list and remove the reaction
-    updated_posts = Enum.map(socket.assigns.posts, fn post ->
-      if post.id == post_id do
-        updated_reactions = Enum.reject(post.reactions, fn r ->
-          r.post_id == post_id && r.emoji == emoji && r.user_id == user_id
-        end)
-        %{post | reactions: updated_reactions}
-      else
-        post
-      end
-    end)
+    updated_posts =
+      Enum.map(socket.assigns.posts, fn post ->
+        if post.id == post_id do
+          updated_reactions =
+            Enum.reject(post.reactions, fn r ->
+              r.post_id == post_id && r.emoji == emoji && r.user_id == user_id
+            end)
+
+          %{post | reactions: updated_reactions}
+        else
+          post
+        end
+      end)
 
     # Also update the single post view if we're looking at that post
-    socket = if socket.assigns.post && socket.assigns.post.id == post_id do
-      updated_reactions = Enum.reject(socket.assigns.post.reactions, fn r ->
-        r.post_id == post_id && r.emoji == emoji && r.user_id == user_id
-      end)
-      updated_post = %{socket.assigns.post | reactions: updated_reactions}
-      assign(socket, :post, updated_post)
-    else
-      socket
-    end
+    socket =
+      if socket.assigns.post && socket.assigns.post.id == post_id do
+        updated_reactions =
+          Enum.reject(socket.assigns.post.reactions, fn r ->
+            r.post_id == post_id && r.emoji == emoji && r.user_id == user_id
+          end)
+
+        updated_post = %{socket.assigns.post | reactions: updated_reactions}
+        assign(socket, :post, updated_post)
+      else
+        socket
+      end
 
     {:noreply, assign(socket, :posts, updated_posts)}
   end

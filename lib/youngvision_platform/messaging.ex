@@ -8,17 +8,17 @@ defmodule YoungvisionPlatform.Messaging do
   alias Phoenix.PubSub
 
   alias YoungvisionPlatform.Messaging.Message
-  
+
   @pubsub YoungvisionPlatform.PubSub
-  
+
   # PubSub topic for user messages
   def user_topic(user_id), do: "user:#{user_id}:messages"
-  
+
   # Subscribe to messages for a user
   def subscribe_to_messages(user_id) do
     PubSub.subscribe(@pubsub, user_topic(user_id))
   end
-  
+
   # Broadcast a new message to the recipient
   def broadcast_message(message) do
     PubSub.broadcast(
@@ -34,9 +34,10 @@ defmodule YoungvisionPlatform.Messaging do
   """
   def list_conversation(user1_id, user2_id) do
     Message
-    |> where([m], 
-      (m.sender_id == ^user1_id and m.recipient_id == ^user2_id) or 
-      (m.sender_id == ^user2_id and m.recipient_id == ^user1_id)
+    |> where(
+      [m],
+      (m.sender_id == ^user1_id and m.recipient_id == ^user2_id) or
+        (m.sender_id == ^user2_id and m.recipient_id == ^user1_id)
     )
     |> order_by([m], asc: m.inserted_at)
     |> preload([:sender, :recipient])
@@ -52,16 +53,26 @@ defmodule YoungvisionPlatform.Messaging do
     conversation_partners =
       Message
       |> where([m], m.sender_id == ^user_id or m.recipient_id == ^user_id)
-      |> select([m], fragment("CASE WHEN ? = ? THEN ? ELSE ? END", m.sender_id, ^user_id, m.recipient_id, m.sender_id))
+      |> select(
+        [m],
+        fragment(
+          "CASE WHEN ? = ? THEN ? ELSE ? END",
+          m.sender_id,
+          ^user_id,
+          m.recipient_id,
+          m.sender_id
+        )
+      )
       |> distinct(true)
       |> Repo.all()
 
     # For each conversation partner, get the most recent message
     Enum.map(conversation_partners, fn partner_id ->
       Message
-      |> where([m], 
-        (m.sender_id == ^user_id and m.recipient_id == ^partner_id) or 
-        (m.sender_id == ^partner_id and m.recipient_id == ^user_id)
+      |> where(
+        [m],
+        (m.sender_id == ^user_id and m.recipient_id == ^partner_id) or
+          (m.sender_id == ^partner_id and m.recipient_id == ^user_id)
       )
       |> order_by([m], desc: m.inserted_at)
       |> limit(1)
@@ -82,7 +93,7 @@ defmodule YoungvisionPlatform.Messaging do
   Creates a message.
   """
   def create_message(sender, recipient, attrs \\ %{}) do
-    attrs_with_users = 
+    attrs_with_users =
       attrs
       |> Map.put("sender_id", sender.id)
       |> Map.put("recipient_id", recipient.id)
@@ -91,12 +102,14 @@ defmodule YoungvisionPlatform.Messaging do
     |> Message.changeset(attrs_with_users)
     |> Repo.insert()
     |> case do
-      {:ok, message} -> 
+      {:ok, message} ->
         message = Repo.preload(message, [:sender, :recipient])
         # Broadcast the new message to the recipient
         broadcast_message(message)
         {:ok, message}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -121,9 +134,12 @@ defmodule YoungvisionPlatform.Messaging do
   """
   def mark_all_as_read(sender_id, recipient_id) do
     now = DateTime.utc_now()
-    
+
     Message
-    |> where([m], m.sender_id == ^sender_id and m.recipient_id == ^recipient_id and is_nil(m.read_at))
+    |> where(
+      [m],
+      m.sender_id == ^sender_id and m.recipient_id == ^recipient_id and is_nil(m.read_at)
+    )
     |> Repo.update_all(set: [read_at: now, updated_at: now])
   end
 

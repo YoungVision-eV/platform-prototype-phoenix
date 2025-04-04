@@ -5,7 +5,7 @@ defmodule YoungvisionPlatform.Messaging.Message do
   schema "messages" do
     field :content, :string
     field :read_at, :utc_datetime
-    
+
     belongs_to :sender, YoungvisionPlatform.Accounts.User
     belongs_to :recipient, YoungvisionPlatform.Accounts.User
 

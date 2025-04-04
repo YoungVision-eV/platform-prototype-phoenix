@@ -14,7 +14,7 @@ defmodule YoungvisionPlatform.Community.Reaction do
 
   schema "reactions" do
     field :emoji, :string
-    
+
     belongs_to :user, YoungvisionPlatform.Accounts.User
     belongs_to :post, YoungvisionPlatform.Community.Post
 

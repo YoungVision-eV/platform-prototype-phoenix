@@ -4,7 +4,7 @@ defmodule YoungvisionPlatform.Community.Comment do
 
   schema "comments" do
     field :content, :string
-    
+
     belongs_to :user, YoungvisionPlatform.Accounts.User
     belongs_to :post, YoungvisionPlatform.Community.Post
 

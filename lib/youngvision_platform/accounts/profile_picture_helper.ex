@@ -26,14 +26,14 @@ defmodule YoungvisionPlatform.Accounts.ProfilePictureHelper do
     extension = Path.extname(upload.filename)
     filename = "#{System.os_time()}_#{:crypto.strong_rand_bytes(8) |> Base.url_encode64()}"
     filename_with_extension = "#{filename}#{extension}"
-    
+
     # Ensure the directory exists
     File.mkdir_p!("uploads/profile_pictures")
-    
+
     # Save the file
     dest = Path.join("uploads/profile_pictures", filename_with_extension)
     File.cp!(upload.path, dest)
-    
+
     # Return the filename
     filename_with_extension
   end
