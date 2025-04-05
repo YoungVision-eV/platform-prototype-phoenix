@@ -19,8 +19,17 @@
 <!-- New Post Form -->
   <%= if @live_action == :new do %>
     <div class="bg-white shadow rounded-lg p-6 mb-6">
-      <h2 class="text-xl font-semibold mb-4">Create a New Post</h2>
+      <h2 class="text-xl font-semibold mb-4">
+        <%= if @group_id do %>
+          Create a New Group Post
+        <% else %>
+          Create a New Post
+        <% end %>
+      </h2>
       <.form for={%{"title" => "", "content" => ""}} phx-submit="create-post">
+        <%= if @group_id do %>
+          <input type="hidden" name="post[group_id]" value={@group_id} />
+        <% end %>
         <div class="mb-4">
           <label class="block text-gray-700 text-sm font-bold mb-2" for="post_title">Title</label>
           <input

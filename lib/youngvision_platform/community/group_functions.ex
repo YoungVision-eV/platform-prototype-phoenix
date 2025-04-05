@@ -53,6 +53,42 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
   end
 
   @doc """
+  Gets a single group with its members and posts preloaded.
+
+  Raises `Ecto.NoResultsError` if the Group does not exist.
+
+  ## Examples
+
+      iex> get_group_with_posts!(123)
+      %Group{users: [%User{}, ...], posts: [%Post{}, ...]}
+
+  """
+  def get_group_with_posts!(id) do
+    Repo.get!(Group, id)
+    |> Repo.preload([:users, posts: [:user, comments: [:user], reactions: [:user]]])
+  end
+
+  @doc """
+  Returns the list of posts for a specific group.
+
+  ## Examples
+
+      iex> list_group_posts(group)
+      [%Post{}, ...]
+
+  """
+  def list_group_posts(%Group{} = group) do
+    import Ecto.Query
+
+    Repo.all(
+      from p in YoungvisionPlatform.Community.Post,
+        where: p.group_id == ^group.id,
+        order_by: [desc: p.inserted_at],
+        preload: [:user, comments: [:user], reactions: [:user]]
+    )
+  end
+
+  @doc """
   Creates a group.
 
   ## Examples

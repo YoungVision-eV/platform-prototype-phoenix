@@ -10,6 +10,8 @@ defmodule YoungvisionPlatform.Community.Post do
 
     # Add association to users
     belongs_to :user, YoungvisionPlatform.Accounts.User
+    # Add association to groups
+    belongs_to :group, YoungvisionPlatform.Community.Group
     # Add association to comments
     has_many :comments, YoungvisionPlatform.Community.Comment
     # Add association to reactions
@@ -21,7 +23,7 @@ defmodule YoungvisionPlatform.Community.Post do
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :content, :user_id])
+    |> cast(attrs, [:title, :content, :user_id, :group_id])
     |> validate_required([:title, :content, :user_id])
   end
 end

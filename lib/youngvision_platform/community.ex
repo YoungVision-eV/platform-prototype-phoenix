@@ -586,6 +586,8 @@ defmodule YoungvisionPlatform.Community do
   defdelegate list_groups, to: YoungvisionPlatform.Community.GroupFunctions
   defdelegate get_group!(id), to: YoungvisionPlatform.Community.GroupFunctions
   defdelegate get_group_with_members!(id), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate get_group_with_posts!(id), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate list_group_posts(group), to: YoungvisionPlatform.Community.GroupFunctions
   defdelegate create_group(attrs), to: YoungvisionPlatform.Community.GroupFunctions
   defdelegate update_group(group, attrs), to: YoungvisionPlatform.Community.GroupFunctions
   defdelegate delete_group(group), to: YoungvisionPlatform.Community.GroupFunctions

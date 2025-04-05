@@ -4,7 +4,7 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   alias YoungvisionPlatform.Community
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(params, _session, socket) do
     # Check if current_user is in the assigns
     current_user = Map.get(socket.assigns, :current_user)
 
@@ -21,6 +21,7 @@ defmodule YoungvisionPlatformWeb.PostsLive do
        socket
        |> assign(:posts, posts)
        |> assign(:post, nil)
+       |> assign(:group_id, params["group_id"])
        |> assign(:comment_form, to_form(%{"content" => ""}))}
     else
       {:ok, redirect(socket, to: ~p"/users/log_in")}
@@ -39,9 +40,13 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     |> assign(:page_title, "Community Feed")
   end
 
-  defp apply_action(socket, :new, _params) do
+  defp apply_action(socket, :new, params) do
+    group_id = params["group_id"]
+    page_title = if group_id, do: "New Group Post", else: "New Post"
+    
     socket
-    |> assign(:page_title, "New Post")
+    |> assign(:page_title, page_title)
+    |> assign(:group_id, group_id)
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
@@ -54,12 +59,26 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
   @impl true
   def handle_event("create-post", %{"post" => post_params}, socket) do
+    # Add group_id to post_params if it exists in socket assigns
+    post_params = if socket.assigns.group_id do
+      Map.put(post_params, "group_id", socket.assigns.group_id)
+    else
+      post_params
+    end
+    
     case Community.create_post(socket.assigns.current_user, post_params) do
       {:ok, post} ->
+        # If post was created for a group, redirect back to the group
+        redirect_path = if socket.assigns.group_id do
+          ~p"/groups/#{socket.assigns.group_id}"
+        else
+          ~p"/posts/#{post.id}"
+        end
+        
         {:noreply,
          socket
          |> put_flash(:info, "Post created successfully")
-         |> push_navigate(to: ~p"/posts/#{post.id}")}
+         |> push_navigate(to: redirect_path)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply,

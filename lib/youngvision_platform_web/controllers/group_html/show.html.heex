@@ -36,6 +36,77 @@
       </dl>
     </div>
   </div>
+  
+  <div class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg leading-6 font-medium text-gray-900">Group Posts</h3>
+      <%= if @is_member do %>
+        <.link href={~p"/posts/new?group_id=#{@group.id}"} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+          New Post
+        </.link>
+      <% end %>
+    </div>
+    
+    <div class="space-y-6">
+      <%= for post <- @group.posts do %>
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                  <%= if post.user.profile_picture do %>
+                    <img src={post.user.profile_picture} alt="" class="h-10 w-10 rounded-full">
+                  <% else %>
+                    <span class="text-gray-500 font-medium"><%= String.first(post.user.display_name) %></span>
+                  <% end %>
+                </div>
+              </div>
+              <div class="ml-4">
+                <h4 class="text-lg font-medium text-gray-900">
+                  <.link navigate={~p"/posts/#{post.id}"} class="hover:underline"><%= post.title %></.link>
+                </h4>
+                <div class="flex items-center text-sm text-gray-500">
+                  <.link navigate={~p"/users/#{post.user.id}"} class="font-medium text-brand hover:underline"><%= post.user.display_name %></.link>
+                  <span class="mx-1">·</span>
+                  <span><%= Calendar.strftime(post.inserted_at, "%B %d, %Y") %></span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+              <p><%= post.content %></p>
+            </div>
+            <div class="mt-4 flex items-center space-x-4 text-sm">
+              <div class="flex items-center text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <%= length(post.comments) %> comments
+              </div>
+              <div class="flex items-center text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                </svg>
+                <%= length(post.reactions) %> reactions
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+      
+      <%= if Enum.empty?(@group.posts) do %>
+        <div class="text-center py-8 bg-white shadow overflow-hidden sm:rounded-md">
+          <p class="text-gray-500">No posts in this group yet.</p>
+          <%= if @is_member do %>
+            <div class="mt-4">
+              <.link href={~p"/posts/new?group_id=#{@group.id}"} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand">
+                Create the first post
+              </.link>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
   <div class="mt-8">
     <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Members (<%= Enum.count(@group.users) %>)</h3>
