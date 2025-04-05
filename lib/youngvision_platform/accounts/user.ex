@@ -37,7 +37,9 @@ defmodule YoungvisionPlatform.Accounts.User do
     has_many :comments, YoungvisionPlatform.Community.Comment
     has_many :reactions, YoungvisionPlatform.Community.Reaction
     has_many :group_memberships, YoungvisionPlatform.Community.GroupMembership
-    many_to_many :groups, YoungvisionPlatform.Community.Group, join_through: YoungvisionPlatform.Community.GroupMembership
+
+    many_to_many :groups, YoungvisionPlatform.Community.Group,
+      join_through: YoungvisionPlatform.Community.GroupMembership
 
     timestamps(type: :utc_datetime)
   end

@@ -2,7 +2,18 @@ defmodule YoungvisionPlatform.Community.Event do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @derive {Jason.Encoder, only: [:id, :title, :description, :location, :latitude, :longitude, :start_time, :end_time, :user_id]}
+  @derive {Jason.Encoder,
+           only: [
+             :id,
+             :title,
+             :description,
+             :location,
+             :latitude,
+             :longitude,
+             :start_time,
+             :end_time,
+             :user_id
+           ]}
 
   schema "events" do
     field :description, :string

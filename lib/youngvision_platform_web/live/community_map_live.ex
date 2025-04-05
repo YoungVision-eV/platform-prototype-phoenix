@@ -13,28 +13,31 @@ defmodule YoungvisionPlatformWeb.CommunityMapLive do
       Enum.map(users_with_location, fn user ->
         Map.put(user, :profile_picture_url, ProfilePictureHelper.profile_picture_url(user))
       end)
-    
+
     # Get events with location data
     events = Community.list_events()
-    events_with_location = Enum.filter(events, fn event -> 
-      event.latitude != nil && event.longitude != nil 
-    end)
-    
+
+    events_with_location =
+      Enum.filter(events, fn event ->
+        event.latitude != nil && event.longitude != nil
+      end)
+
     # Prepare events for JSON encoding by converting to simple maps
     # This ensures we only include the fields we need and avoid circular references
-    prepared_events = Enum.map(events_with_location, fn event ->
-      %{
-        id: event.id,
-        title: event.title,
-        description: event.description,
-        location: event.location,
-        latitude: event.latitude,
-        longitude: event.longitude,
-        start_time: event.start_time,
-        end_time: event.end_time,
-        user_id: event.user_id
-      }
-    end)
+    prepared_events =
+      Enum.map(events_with_location, fn event ->
+        %{
+          id: event.id,
+          title: event.title,
+          description: event.description,
+          location: event.location,
+          latitude: event.latitude,
+          longitude: event.longitude,
+          start_time: event.start_time,
+          end_time: event.end_time,
+          user_id: event.user_id
+        }
+      end)
 
     {:ok, assign(socket, users: users_with_profile_pics, events: prepared_events)}
   end

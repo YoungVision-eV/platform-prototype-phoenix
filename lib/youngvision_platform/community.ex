@@ -60,20 +60,22 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_posts(current_user \\ nil) do
-    query = from p in Post,
-      order_by: [desc: p.inserted_at]
+    query =
+      from p in Post,
+        order_by: [desc: p.inserted_at]
 
     # If a user is provided, filter out posts from groups the user is not a member of
-    query = if current_user do
-      # Join with group_memberships to check if the user is a member of the group
-      # Include posts that don't belong to any group (group_id is nil)
-      from p in query,
-        left_join: gm in "group_memberships",
-        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
-        where: is_nil(p.group_id) or not is_nil(gm.id)
-    else
-      query
-    end
+    query =
+      if current_user do
+        # Join with group_memberships to check if the user is a member of the group
+        # Include posts that don't belong to any group (group_id is nil)
+        from p in query,
+          left_join: gm in "group_memberships",
+          on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+          where: is_nil(p.group_id) or not is_nil(gm.id)
+      else
+        query
+      end
 
     Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
@@ -117,19 +119,21 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def get_post!(id, current_user \\ nil) do
-    post = Repo.get!(Post, id) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
-    
+    post =
+      Repo.get!(Post, id) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
+
     # If the post belongs to a group and a user is provided, check if the user is a member of the group
     if post.group_id && current_user do
       # Check if the user is a member of the group
-      is_member = YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)
-      
+      is_member =
+        YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)
+
       # If the user is not a member of the group, raise an error
       if !is_member do
         raise Ecto.NoResultsError, queryable: Post
       end
     end
-    
+
     post
   end
 
@@ -171,11 +175,12 @@ defmodule YoungvisionPlatform.Community do
   """
   def create_checkin_post(user, checkin_type, attrs \\ %{}) do
     # Set the max participants based on checkin_type
-    max_participants = case checkin_type do
-      "duade" -> 2
-      "triade" -> 3
-      _ -> 0
-    end
+    max_participants =
+      case checkin_type do
+        "duade" -> 2
+        "triade" -> 3
+        _ -> 0
+      end
 
     # Add the initial participant (the creator)
     initial_participant = %{
@@ -185,14 +190,16 @@ defmodule YoungvisionPlatform.Community do
     }
 
     # Merge the checkin attributes with the provided attributes
-    checkin_attrs = Map.merge(attrs, %{
-      "user_id" => user.id,
-      "post_type" => "checkin",
-      "checkin_type" => checkin_type,
-      "max_participants" => max_participants,
-      "participants" => [initial_participant],
-      "is_full" => max_participants == 1 # If max_participants is 1, it's already full
-    })
+    checkin_attrs =
+      Map.merge(attrs, %{
+        "user_id" => user.id,
+        "post_type" => "checkin",
+        "checkin_type" => checkin_type,
+        "max_participants" => max_participants,
+        "participants" => [initial_participant],
+        # If max_participants is 1, it's already full
+        "is_full" => max_participants == 1
+      })
 
     %Post{}
     |> Post.changeset(checkin_attrs)
@@ -238,12 +245,12 @@ defmodule YoungvisionPlatform.Community do
           "display_name" => user.display_name,
           "joined_at" => NaiveDateTime.to_string(NaiveDateTime.utc_now())
         }
-        
+
         updated_participants = post.participants ++ [new_participant]
-        
+
         # Check if the post will be full after this join
         will_be_full = length(updated_participants) >= post.max_participants
-        
+
         # Update the post
         post
         |> Post.changeset(%{
@@ -255,21 +262,21 @@ defmodule YoungvisionPlatform.Community do
           {:ok, updated_post} ->
             updated_post = Repo.preload(updated_post, [:user])
             broadcast_checkin_joined(updated_post)
-            
+
             # If the post is now full, broadcast that as well
             if will_be_full do
               broadcast_checkin_full(updated_post)
             end
-            
+
             {:ok, updated_post}
-            
+
           error ->
             error
         end
       end
     end
   end
-  
+
   # For non-checkin posts, return an error
   def join_checkin_post(_user, _post), do: {:error, :not_a_checkin_post}
 
@@ -283,19 +290,21 @@ defmodule YoungvisionPlatform.Community do
 
   """
   def list_available_checkin_posts(current_user \\ nil) do
-    query = from p in Post,
-      where: p.post_type == "checkin" and p.is_full == false,
-      order_by: [desc: p.inserted_at]
+    query =
+      from p in Post,
+        where: p.post_type == "checkin" and p.is_full == false,
+        order_by: [desc: p.inserted_at]
 
     # If a user is provided, filter out posts from groups the user is not a member of
-    query = if current_user do
-      from p in query,
-        left_join: gm in "group_memberships",
-        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
-        where: is_nil(p.group_id) or not is_nil(gm.id)
-    else
-      query
-    end
+    query =
+      if current_user do
+        from p in query,
+          left_join: gm in "group_memberships",
+          on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+          where: is_nil(p.group_id) or not is_nil(gm.id)
+      else
+        query
+      end
 
     Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
@@ -780,12 +789,28 @@ defmodule YoungvisionPlatform.Community do
 
   # Group membership-related functions
   defdelegate list_group_memberships, to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate list_group_memberships_by_group(group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate list_group_memberships_by_user(user), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate get_group_membership!(id), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate create_group_membership(attrs), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate add_user_to_group(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate remove_user_from_group(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate is_user_in_group?(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
-  defdelegate delete_group_membership(group_membership), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate list_group_memberships_by_group(group),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate list_group_memberships_by_user(user),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate get_group_membership!(id),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate create_group_membership(attrs),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate add_user_to_group(user, group),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate remove_user_from_group(user, group),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate is_user_in_group?(user, group),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
+
+  defdelegate delete_group_membership(group_membership),
+    to: YoungvisionPlatform.Community.GroupMembershipFunctions
 end

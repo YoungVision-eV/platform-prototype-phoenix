@@ -7,7 +7,7 @@ defmodule YoungvisionPlatform.Community.Post do
     field :content, :string
     # We'll keep author for backward compatibility but make it optional
     field :author, :string
-    
+
     # Check-in fields
     field :post_type, :string, default: "regular"
     field :checkin_type, :string
@@ -30,7 +30,17 @@ defmodule YoungvisionPlatform.Community.Post do
   @doc false
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :content, :user_id, :group_id, :post_type, :checkin_type, :max_participants, :participants, :is_full])
+    |> cast(attrs, [
+      :title,
+      :content,
+      :user_id,
+      :group_id,
+      :post_type,
+      :checkin_type,
+      :max_participants,
+      :participants,
+      :is_full
+    ])
     |> validate_required([:title, :content, :user_id])
     |> validate_checkin_fields()
   end
@@ -42,6 +52,7 @@ defmodule YoungvisionPlatform.Community.Post do
         |> validate_required([:checkin_type, :max_participants])
         |> validate_inclusion(:checkin_type, ["duade", "triade"])
         |> validate_number(:max_participants, greater_than: 0)
+
       _ ->
         changeset
     end

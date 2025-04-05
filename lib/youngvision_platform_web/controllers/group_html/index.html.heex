@@ -12,10 +12,13 @@
     <div class="bg-white overflow-hidden shadow rounded-lg">
       <div class="px-4 py-5 sm:p-6">
         <h3 class="text-lg leading-6 font-medium text-gray-900">
-          <%= group.name %>
+          {group.name}
         </h3>
         <div class="mt-4 flex justify-between">
-          <.link navigate={~p"/groups/#{group}"} class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+          <.link
+            navigate={~p"/groups/#{group}"}
+            class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+          >
             View details
           </.link>
         </div>

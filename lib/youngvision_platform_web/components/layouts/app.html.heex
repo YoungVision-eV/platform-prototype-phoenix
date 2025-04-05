@@ -8,10 +8,10 @@
         </a>
       </div>
       
-      <!-- Mobile menu button -->
+<!-- Mobile menu button -->
       <div class="md:hidden" id="mobile-menu-container" phx-hook="MobileMenu">
-        <button 
-          type="button" 
+        <button
+          type="button"
           id="mobile-menu-button"
           class="inline-flex items-center justify-center p-2 rounded-md text-zinc-800 hover:text-zinc-700 hover:bg-orange-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-orange-300"
           phx-click={JS.toggle(to: "#mobile-menu")}
@@ -55,7 +55,7 @@
         </button>
       </div>
       
-      <!-- Desktop navigation -->
+<!-- Desktop navigation -->
       <nav class="hidden md:block">
         <ul class="flex items-center gap-4 font-semibold leading-6 text-zinc-900">
           <li>
@@ -181,26 +181,44 @@
       </nav>
     </div>
     
-    <!-- Mobile navigation menu -->
+<!-- Mobile navigation menu -->
     <div id="mobile-menu" class="hidden md:hidden">
       <div class="px-2 pt-2 pb-3 space-y-1 border-b border-orange-100">
-        <a href="/" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+        <a
+          href="/"
+          class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+        >
           Home
         </a>
-        <a href="/posts" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+        <a
+          href="/posts"
+          class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+        >
           Posts
         </a>
-        <a href="/community/map" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+        <a
+          href="/community/map"
+          class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+        >
           Community Map
         </a>
-        <a href="/community/calendar" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+        <a
+          href="/community/calendar"
+          class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+        >
           Calendar
         </a>
-        <a href="/groups" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+        <a
+          href="/groups"
+          class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+        >
           Groups
         </a>
         <%= if @current_user do %>
-          <a href="/messages" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100 flex items-center">
+          <a
+            href="/messages"
+            class="flex px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100 items-center"
+          >
             Messages
             <%= if assigns[:unread_message_count] && @unread_message_count > 0 do %>
               <span class="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -208,7 +226,10 @@
               </span>
             <% end %>
           </a>
-          <a href="/posts/new" class="block px-3 py-2 rounded-md text-base font-medium bg-brand text-white hover:bg-brand/90">
+          <a
+            href="/posts/new"
+            class="block px-3 py-2 rounded-md text-base font-medium bg-brand text-white hover:bg-brand/90"
+          >
             New Post <span aria-hidden="true">+</span>
           </a>
           <div class="pt-4 pb-3 border-t border-orange-100">
@@ -216,25 +237,44 @@
               <div class="text-base font-medium">Hello, {@current_user.display_name}</div>
             </div>
             <div class="mt-3 space-y-1">
-              <.link href="/messages" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+              <.link
+                href="/messages"
+                class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+              >
                 Messages
               </.link>
-              <.link href="/users/{@current_user.id}" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+              <.link
+                href="/users/{@current_user.id}"
+                class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+              >
                 My Profile
               </.link>
-              <.link href="/users/settings" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+              <.link
+                href="/users/settings"
+                class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+              >
                 Settings
               </.link>
-              <.link href="/users/log_out" method="delete" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+              <.link
+                href="/users/log_out"
+                method="delete"
+                class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+              >
                 Log out
               </.link>
             </div>
           </div>
         <% else %>
-          <.link href="/users/register" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+          <.link
+            href="/users/register"
+            class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100"
+          >
             Register
           </.link>
-          <.link href="/users/log_in" class="block px-3 py-2 rounded-md text-base font-medium bg-brand text-white hover:bg-brand/90 px-3 py-2">
+          <.link
+            href="/users/log_in"
+            class="block px-3 py-2 rounded-md text-base font-medium bg-brand text-white hover:bg-brand/90"
+          >
             Log in
           </.link>
         <% end %>

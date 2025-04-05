@@ -168,9 +168,10 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
   def is_member?(user_id, group_id) do
     import Ecto.Query
 
-    query = from gm in YoungvisionPlatform.Community.GroupMembership,
-      where: gm.user_id == ^user_id and gm.group_id == ^group_id,
-      select: count(gm.id)
+    query =
+      from gm in YoungvisionPlatform.Community.GroupMembership,
+        where: gm.user_id == ^user_id and gm.group_id == ^group_id,
+        select: count(gm.id)
 
     Repo.one(query) > 0
   end
