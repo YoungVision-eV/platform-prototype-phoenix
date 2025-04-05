@@ -13,6 +13,8 @@
 alias YoungvisionPlatform.Repo
 alias YoungvisionPlatform.Community.Post
 alias YoungvisionPlatform.Accounts
+# Create groups
+alias YoungvisionPlatform.Community
 
 # Get or create test users with locations throughout Germany
 get_or_update_user = fn email, display_name, location, lat, lng ->
@@ -652,6 +654,42 @@ case Repo.get_by(Message, id: 6) do
     nil
 end
 
+# Create groups
+{:ok, urban_gardening} =
+  Community.create_group(%{
+    "name" => "Urban Gardening Initiative"
+  })
+
+{:ok, climate_action} =
+  Community.create_group(%{
+    "name" => "Climate Action Network"
+  })
+
+{:ok, book_club} =
+  Community.create_group(%{
+    "name" => "Sustainability Book Club"
+  })
+
+{:ok, tech_for_good} =
+  Community.create_group(%{
+    "name" => "Tech for Good"
+  })
+
+# Add members to groups
+Community.add_user_to_group(jonas, urban_gardening)
+Community.add_user_to_group(maria, urban_gardening)
+Community.add_user_to_group(thomas, urban_gardening)
+
+Community.add_user_to_group(maria, climate_action)
+Community.add_user_to_group(thomas, climate_action)
+Community.add_user_to_group(lisa, climate_action)
+
+Community.add_user_to_group(jonas, book_club)
+Community.add_user_to_group(lisa, book_club)
+
+Community.add_user_to_group(jonas, tech_for_good)
+Community.add_user_to_group(thomas, tech_for_good)
+
 # Reset sequence counters to avoid conflicts with explicit IDs
 # This ensures that auto-incrementing works correctly after seeding
 IO.puts("Resetting sequence counters...")
@@ -664,19 +702,19 @@ BEGIN
   -- Posts
   SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM posts;
   PERFORM setval('posts_id_seq', max_id);
-  
+
   -- Comments
   SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM comments;
   PERFORM setval('comments_id_seq', max_id);
-  
+
   -- Reactions
   SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM reactions;
   PERFORM setval('reactions_id_seq', max_id);
-  
+
   -- Events
   SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM events;
   PERFORM setval('events_id_seq', max_id);
-  
+
   -- Messages
   SELECT COALESCE(MAX(id), 0) + 1 INTO max_id FROM messages;
   PERFORM setval('messages_id_seq', max_id);

@@ -64,6 +64,11 @@ defmodule YoungvisionPlatformWeb.Router do
   scope "/", YoungvisionPlatformWeb do
     pipe_through [:browser, :require_authenticated_user]
 
+    # Groups routes
+    resources "/groups", GroupController
+    post "/groups/:id/join", GroupController, :join
+    post "/groups/:id/leave", GroupController, :leave
+
     # Controller-based post routes are now handled by LiveView
 
     live_session :require_authenticated_user,

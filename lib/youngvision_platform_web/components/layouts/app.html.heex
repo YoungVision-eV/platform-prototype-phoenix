@@ -78,6 +78,11 @@
               Calendar
             </a>
           </li>
+          <li>
+            <a href="/groups" class="hover:text-zinc-700">
+              Groups
+            </a>
+          </li>
           <%= if @current_user do %>
             <li>
               <a href="/messages" class="hover:text-zinc-700 flex items-center">
@@ -190,6 +195,9 @@
         </a>
         <a href="/community/calendar" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
           Calendar
+        </a>
+        <a href="/groups" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100">
+          Groups
         </a>
         <%= if @current_user do %>
           <a href="/messages" class="block px-3 py-2 rounded-md text-base font-medium text-zinc-900 hover:bg-orange-100 flex items-center">

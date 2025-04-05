@@ -1,0 +1,10 @@
+<.header>
+  New Group
+  <:subtitle>Create a new group for collaboration.</:subtitle>
+</.header>
+
+<div class="mt-6">
+  <.group_form changeset={@changeset} action={~p"/groups"} />
+</div>
+
+<.back navigate={~p"/groups"}>Back to groups</.back>

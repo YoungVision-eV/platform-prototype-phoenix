@@ -1,0 +1,10 @@
+<.header>
+  Edit Group
+  <:subtitle>Update group information.</:subtitle>
+</.header>
+
+<div class="mt-6">
+  <.group_form changeset={@changeset} action={~p"/groups/#{@group}"} />
+</div>
+
+<.back navigate={~p"/groups/#{@group}"}>Back to group</.back>

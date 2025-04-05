@@ -581,4 +581,24 @@ defmodule YoungvisionPlatform.Community do
   def user_has_reacted?(user_id, post_id, emoji) do
     not is_nil(get_reaction_by_user_post_emoji(user_id, post_id, emoji))
   end
+
+  # Group-related functions
+  defdelegate list_groups, to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate get_group!(id), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate get_group_with_members!(id), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate create_group(attrs), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate update_group(group, attrs), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate delete_group(group), to: YoungvisionPlatform.Community.GroupFunctions
+  defdelegate change_group(group, attrs \\ %{}), to: YoungvisionPlatform.Community.GroupFunctions
+
+  # Group membership-related functions
+  defdelegate list_group_memberships, to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate list_group_memberships_by_group(group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate list_group_memberships_by_user(user), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate get_group_membership!(id), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate create_group_membership(attrs), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate add_user_to_group(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate remove_user_from_group(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate is_user_in_group?(user, group), to: YoungvisionPlatform.Community.GroupMembershipFunctions
+  defdelegate delete_group_membership(group_membership), to: YoungvisionPlatform.Community.GroupMembershipFunctions
 end

@@ -1,0 +1,31 @@
+<.header>
+  Groups
+  <:actions>
+    <.link href={~p"/groups/new"}>
+      <.button>New Group</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  <%= for group <- @groups do %>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+          <%= group.name %>
+        </h3>
+        <div class="mt-4 flex justify-between">
+          <.link navigate={~p"/groups/#{group}"} class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            View details
+          </.link>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%= if Enum.empty?(@groups) do %>
+  <div class="text-center py-12">
+    <p class="text-gray-500">No groups available yet. Create one to get started!</p>
+  </div>
+<% end %>
