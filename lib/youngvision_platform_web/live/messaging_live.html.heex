@@ -1,24 +1,30 @@
 <div class="container mx-auto px-4 py-8">
-  <div class="flex h-[calc(100vh-200px)] bg-white rounded-lg shadow-lg overflow-hidden">
+  <div class="flex flex-col md:flex-row h-[calc(100vh-200px)] bg-white rounded-lg shadow-lg overflow-hidden">
+    
     <!-- Conversations sidebar -->
-    <div class="w-1/4 border-r border-gray-200 bg-gray-50">
-      <div class="p-4 border-b border-gray-200">
-        <h2 class="text-xl font-semibold">Messages</h2>
-        <div class="mt-2 flex justify-between">
-          <span class="text-sm text-gray-600">
-            <%= if @unread_count > 0 do %>
-              <span class="font-medium">{@unread_count} unread</span>
-            <% else %>
-              No unread messages
-            <% end %>
-          </span>
-          <.link patch={~p"/messages/new"} class="text-sm text-blue-500 hover:underline">
-            New Message
-          </.link>
+    <div id="conversation-list" class={["md:w-1/3 lg:w-1/4 border-r border-gray-200 bg-gray-50", if(@selected_conversation, do: "hidden md:block", else: "block")]}>
+      <div class="sticky top-0 z-10 bg-gray-50">
+        <div class="p-4 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Messages</h2>
+          </div>
+          <div class="mt-2 flex justify-between">
+            <span class="text-sm text-gray-600">
+              <%= if @unread_count > 0 do %>
+                <span class="font-medium">{@unread_count} unread</span>
+              <% else %>
+                No unread messages
+              <% end %>
+            </span>
+            <.link patch={~p"/messages/new"} class="text-sm text-blue-500 hover:underline">
+              New Message
+            </.link>
+          </div>
         </div>
       </div>
 
-      <div class="overflow-y-auto h-[calc(100%-70px)]">
+
+      <div class="overflow-y-auto h-[calc(100%-70px)] md:h-[calc(100%-60px)]">
         <%= if Enum.empty?(@conversations) do %>
           <div class="p-4 text-center text-gray-500">
             No conversations yet
@@ -76,11 +82,22 @@
       </div>
     </div>
     
-<!-- Message content area -->
-    <div class="w-3/4 flex flex-col">
+    <!-- Message content area -->
+    <div id="message-content" class={["md:w-2/3 lg:w-3/4 flex flex-col", if(!@selected_conversation, do: "hidden md:flex", else: "flex")]}>
+      <!-- Mobile back button -->
+      <div class="md:hidden sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center p-2">
+        <button 
+          phx-click={JS.patch(~p"/messages")} 
+          class="text-gray-600 p-1 mr-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
       <%= if @selected_conversation do %>
         <!-- Conversation header -->
-        <div class="p-4 border-b border-gray-200 flex items-center">
+        <div class="p-4 border-b border-gray-200 flex items-center md:mt-0">
           <div class="w-10 h-10 rounded-full overflow-hidden mr-3">
             <img
               src={
@@ -101,12 +118,12 @@
         </div>
         
 <!-- Messages -->
-        <div class="flex-1 p-4 overflow-y-auto" id="messages-container" phx-hook="ScrollToBottom">
+        <div class="flex-1 p-2 sm:p-4 overflow-y-auto" id="messages-container" phx-hook="ScrollToBottom">
           <%= for message <- @messages do %>
             <div
               id={"message-#{message.id}"}
               class={[
-                "mb-4 max-w-[70%]",
+                "mb-4 max-w-[85%] sm:max-w-[70%]",
                 if(message.sender_id == @current_user.id, do: "ml-auto", else: "flex")
               ]}
             >
@@ -151,7 +168,7 @@
         </div>
         
 <!-- Message input -->
-        <div class="p-4 border-t border-gray-200">
+        <div class="p-2 sm:p-4 border-t border-gray-200">
           <form phx-submit="send-message" class="flex">
             <input
               type="text"
@@ -171,9 +188,9 @@
         </div>
       <% else %>
         <div class="flex-1 flex items-center justify-center text-gray-500">
-          <div class="text-center">
+          <div class="text-center p-4">
             <div class="text-5xl mb-4">💬</div>
-            <div class="text-xl">Select a conversation or start a new one</div>
+            <div class="text-lg sm:text-xl">Select a conversation or start a new one</div>
           </div>
         </div>
       <% end %>
@@ -196,7 +213,7 @@
           type="text"
           id="user-search"
           placeholder="Search users..."
-          class="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
