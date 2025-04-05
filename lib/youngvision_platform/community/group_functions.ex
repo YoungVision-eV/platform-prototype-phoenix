@@ -152,4 +152,26 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
   def change_group(%Group{} = group, attrs \\ %{}) do
     Group.changeset(group, attrs)
   end
+
+  @doc """
+  Checks if a user is a member of a group.
+
+  ## Examples
+
+      iex> is_member?(user_id, group_id)
+      true
+
+      iex> is_member?(user_id, group_id)
+      false
+
+  """
+  def is_member?(user_id, group_id) do
+    import Ecto.Query
+
+    query = from gm in YoungvisionPlatform.Community.GroupMembership,
+      where: gm.user_id == ^user_id and gm.group_id == ^group_id,
+      select: count(gm.id)
+
+    Repo.one(query) > 0
+  end
 end

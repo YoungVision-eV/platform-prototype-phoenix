@@ -15,7 +15,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       end
 
       # Make sure posts are properly preloaded with all associations
-      posts = Community.list_posts()
+      # Pass the current user to filter out posts from groups the user is not a member of
+      posts = Community.list_posts(current_user)
 
       {:ok,
        socket
@@ -33,6 +34,12 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     {:noreply,
      socket
      |> apply_action(socket.assigns.live_action, params)}
+  rescue
+    Ecto.NoResultsError ->
+      {:noreply,
+       socket
+       |> put_flash(:error, "You don't have permission to view this post or it doesn't exist.")
+       |> push_navigate(to: ~p"/posts")}
   end
 
   defp apply_action(socket, :index, _params) do
@@ -50,7 +57,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
-    post = Community.get_post!(id)
+    # Pass the current user to check if they have access to the post
+    post = Community.get_post!(id, socket.assigns.current_user)
 
     socket
     |> assign(:page_title, post.title)
@@ -127,9 +135,24 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   # Handle broadcast events
   @impl true
   def handle_info({:post_created, post}, socket) do
-    updated_posts =
+    # Only add the post to the list if it's not from a group or if the user is a member of the group
+    current_user = socket.assigns.current_user
+    
+    should_add_post = cond do
+      # If the post doesn't belong to a group, always show it
+      is_nil(post.group_id) -> true
+      # If the post belongs to a group, check if the user is a member
+      true -> 
+        # Check if the user is a member of the group
+        YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)
+    end
+    
+    updated_posts = if should_add_post do
       [post | socket.assigns.posts]
       |> Enum.sort_by(fn p -> p.inserted_at end, {:desc, DateTime})
+    else
+      socket.assigns.posts
+    end
 
     {:noreply, assign(socket, :posts, updated_posts)}
   end

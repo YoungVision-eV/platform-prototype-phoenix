@@ -38,19 +38,34 @@ defmodule YoungvisionPlatform.Community do
 
   @doc """
   Returns the list of posts with user information.
+  If a user is provided, it will filter out posts from groups the user is not a member of.
 
   ## Examples
 
       iex> list_posts()
       [%Post{}, ...]
 
+      iex> list_posts(current_user)
+      [%Post{}, ...]
+
   """
-  def list_posts do
-    Repo.all(
-      from p in Post,
-        order_by: [desc: p.inserted_at],
-        preload: [:user, comments: [:user], reactions: [:user]]
-    )
+  def list_posts(current_user \\ nil) do
+    query = from p in Post,
+      order_by: [desc: p.inserted_at]
+
+    # If a user is provided, filter out posts from groups the user is not a member of
+    query = if current_user do
+      # Join with group_memberships to check if the user is a member of the group
+      # Include posts that don't belong to any group (group_id is nil)
+      from p in query,
+        left_join: gm in "group_memberships",
+        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+        where: is_nil(p.group_id) or not is_nil(gm.id)
+    else
+      query
+    end
+
+    Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
 
   @doc """
@@ -73,20 +88,40 @@ defmodule YoungvisionPlatform.Community do
 
   @doc """
   Gets a single post with user information.
+  If a user is provided, it will check if the user has access to the post.
+  For posts that belong to a group, the user must be a member of the group.
 
   Raises `Ecto.NoResultsError` if the Post does not exist.
+  Raises `Ecto.NoResultsError` if the user doesn't have access to the post.
 
   ## Examples
 
       iex> get_post!(123)
       %Post{}
 
+      iex> get_post!(123, current_user)
+      %Post{}
+
       iex> get_post!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id),
-    do: Repo.get!(Post, id) |> Repo.preload([:user, comments: [:user], reactions: [:user]])
+  def get_post!(id, current_user \\ nil) do
+    post = Repo.get!(Post, id) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
+    
+    # If the post belongs to a group and a user is provided, check if the user is a member of the group
+    if post.group_id && current_user do
+      # Check if the user is a member of the group
+      is_member = YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)
+      
+      # If the user is not a member of the group, raise an error
+      if !is_member do
+        raise Ecto.NoResultsError, queryable: Post
+      end
+    end
+    
+    post
+  end
 
   @doc """
   Creates a post associated with a user.
