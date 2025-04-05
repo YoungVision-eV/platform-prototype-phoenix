@@ -7,20 +7,20 @@
       <button
         phx-click="change-month"
         phx-value-direction="prev"
-        class="p-2 text-orange-600 rounded-full hover:bg-orange-100 focus:outline-none transition-colors"
+        class="p-2 text-orange-600 rounded-full hover:bg-orange-100 focus:outline-none transition-colors flex-shrink-0"
         aria-label="Previous Month"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
-      <h2 class="text-xl font-semibold">
+      <h2 class="text-xl font-semibold text-center min-w-[160px]">
         {Calendar.strftime(@current_date, "%B %Y")}
       </h2>
       <button
         phx-click="change-month"
         phx-value-direction="next"
-        class="p-2 text-orange-600 rounded-full hover:bg-orange-100 focus:outline-none transition-colors"
+        class="p-2 text-orange-600 rounded-full hover:bg-orange-100 focus:outline-none transition-colors flex-shrink-0"
         aria-label="Next Month"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

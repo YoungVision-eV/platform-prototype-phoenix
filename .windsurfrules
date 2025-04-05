@@ -1,3 +1,3 @@
 1. run all mix commands with `toolbox run`, e.g. `toolbox run mix deps.get`
-2. We use love reload. Do not kill the phoenix server. It will restart automatically when changes are detected. 
+2. Do not stop the phoenix server. We use live reload. It will restart automatically when changes are detected. 
 3. use mix phx.gen.schema to generate new schemas and database tables
