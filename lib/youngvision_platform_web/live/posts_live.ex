@@ -16,11 +16,18 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
       # Make sure posts are properly preloaded with all associations
       # Pass the current user to filter out posts from groups the user is not a member of
-      posts = Community.list_posts(current_user)
+      all_posts = Community.list_posts(current_user)
+      
+      # Get available check-in posts
+      available_checkins = Community.list_available_checkin_posts(current_user)
+      
+      # Filter out check-in posts from the regular posts list to avoid duplication
+      regular_posts = Enum.filter(all_posts, fn post -> post.post_type != "checkin" end)
 
       {:ok,
        socket
-       |> assign(:posts, posts)
+       |> assign(:posts, regular_posts)
+       |> assign(:available_checkins, available_checkins)
        |> assign(:post, nil)
        |> assign(:group_id, params["group_id"])
        |> assign(:comment_form, to_form(%{"content" => ""}))}
@@ -54,6 +61,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     socket
     |> assign(:page_title, page_title)
     |> assign(:group_id, group_id)
+    |> assign(:post_type, params["post_type"] || "regular")
+    |> assign(:checkin_type, params["checkin_type"])
   end
 
   defp apply_action(socket, :show, %{"id" => id}) do
@@ -74,25 +83,51 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       post_params
     end
     
-    case Community.create_post(socket.assigns.current_user, post_params) do
-      {:ok, post} ->
-        # If post was created for a group, redirect back to the group
-        redirect_path = if socket.assigns.group_id do
-          ~p"/groups/#{socket.assigns.group_id}"
-        else
-          ~p"/posts/#{post.id}"
-        end
-        
-        {:noreply,
-         socket
-         |> put_flash(:info, "Post created successfully")
-         |> push_navigate(to: redirect_path)}
+    # Check if this is a regular post or a check-in post
+    case socket.assigns.post_type do
+      "checkin" ->
+        case Community.create_checkin_post(socket.assigns.current_user, socket.assigns.checkin_type, post_params) do
+          {:ok, post} ->
+            # If post was created for a group, redirect back to the group
+            redirect_path = if socket.assigns.group_id do
+              ~p"/groups/#{socket.assigns.group_id}"
+            else
+              ~p"/posts/#{post.id}"
+            end
+            
+            {:noreply,
+             socket
+             |> put_flash(:info, "Check-in post created successfully")
+             |> push_navigate(to: redirect_path)}
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        {:noreply,
-         socket
-         |> put_flash(:error, "Error creating post")
-         |> assign(:changeset, changeset)}
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:noreply,
+             socket
+             |> put_flash(:error, "Error creating check-in post")
+             |> assign(:changeset, changeset)}
+        end
+
+      _ ->
+        case Community.create_post(socket.assigns.current_user, post_params) do
+          {:ok, post} ->
+            # If post was created for a group, redirect back to the group
+            redirect_path = if socket.assigns.group_id do
+              ~p"/groups/#{socket.assigns.group_id}"
+            else
+              ~p"/posts/#{post.id}"
+            end
+            
+            {:noreply,
+             socket
+             |> put_flash(:info, "Post created successfully")
+             |> push_navigate(to: redirect_path)}
+
+          {:error, %Ecto.Changeset{} = changeset} ->
+            {:noreply,
+             socket
+             |> put_flash(:error, "Error creating post")
+             |> assign(:changeset, changeset)}
+        end
     end
   end
 
@@ -139,6 +174,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     current_user = socket.assigns.current_user
     
     should_add_post = cond do
+      # Never add check-in posts to the regular posts list
+      post.post_type == "checkin" -> false
       # If the post doesn't belong to a group, always show it
       is_nil(post.group_id) -> true
       # If the post belongs to a group, check if the user is a member
@@ -147,6 +184,17 @@ defmodule YoungvisionPlatformWeb.PostsLive do
         YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)
     end
     
+    # If it's a check-in post and not full, add it to available check-ins
+    updated_checkins = if post.post_type == "checkin" && !post.is_full && 
+                          (is_nil(post.group_id) || 
+                           YoungvisionPlatform.Community.GroupFunctions.is_member?(current_user.id, post.group_id)) do
+      [post | socket.assigns.available_checkins]
+      |> Enum.sort_by(fn p -> p.inserted_at end, {:desc, DateTime})
+    else
+      socket.assigns.available_checkins
+    end
+    
+    # Update regular posts if needed
     updated_posts = if should_add_post do
       [post | socket.assigns.posts]
       |> Enum.sort_by(fn p -> p.inserted_at end, {:desc, DateTime})
@@ -154,7 +202,9 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       socket.assigns.posts
     end
 
-    {:noreply, assign(socket, :posts, updated_posts)}
+    {:noreply, socket 
+      |> assign(:posts, updated_posts)
+      |> assign(:available_checkins, updated_checkins)}
   end
 
   @impl true
@@ -248,5 +298,73 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       end
 
     {:noreply, assign(socket, :posts, updated_posts)}
+  end
+
+  @impl true
+  def handle_event("join-checkin", %{"post_id" => post_id}, socket) do
+    post = Community.get_post!(post_id, socket.assigns.current_user)
+    
+    case Community.join_checkin_post(socket.assigns.current_user, post) do
+      {:ok, updated_post} ->
+        {:noreply, socket |> put_flash(:info, "Successfully joined check-in!")}
+        
+      {:error, :already_joined} ->
+        {:noreply, socket |> put_flash(:error, "You've already joined this check-in")}
+        
+      {:error, :post_full} ->
+        {:noreply, socket |> put_flash(:error, "This check-in is already full")}
+        
+      {:error, :not_a_checkin_post} ->
+        {:noreply, socket |> put_flash(:error, "This is not a check-in post")}
+        
+      {:error, _changeset} ->
+        {:noreply, socket |> put_flash(:error, "Error joining check-in")}
+    end
+  end
+
+  @impl true
+  def handle_info({:checkin_joined, post}, socket) do
+    # Update the post in our list of posts
+    updated_posts = Enum.map(socket.assigns.posts, fn p ->
+      if p.id == post.id, do: post, else: p
+    end)
+    
+    # Update the post in our list of available check-ins
+    updated_checkins = Enum.map(socket.assigns.available_checkins, fn p ->
+      if p.id == post.id, do: post, else: p
+    end)
+    
+    # Also update the single post view if we're looking at that post
+    socket = if socket.assigns.post && socket.assigns.post.id == post.id do
+      assign(socket, :post, post)
+    else
+      socket
+    end
+    
+    {:noreply, socket 
+      |> assign(:posts, updated_posts)
+      |> assign(:available_checkins, updated_checkins)}
+  end
+
+  @impl true
+  def handle_info({:checkin_full, post}, socket) do
+    # Update the post in our list of posts
+    updated_posts = Enum.map(socket.assigns.posts, fn p ->
+      if p.id == post.id, do: post, else: p
+    end)
+    
+    # Remove the post from our list of available check-ins
+    updated_checkins = Enum.reject(socket.assigns.available_checkins, fn p -> p.id == post.id end)
+    
+    # Also update the single post view if we're looking at that post
+    socket = if socket.assigns.post && socket.assigns.post.id == post.id do
+      assign(socket, :post, post)
+    else
+      socket
+    end
+    
+    {:noreply, socket 
+      |> assign(:posts, updated_posts)
+      |> assign(:available_checkins, updated_checkins)}
   end
 end

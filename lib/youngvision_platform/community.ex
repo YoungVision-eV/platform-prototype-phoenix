@@ -26,6 +26,16 @@ defmodule YoungvisionPlatform.Community do
     PubSub.broadcast(@pubsub, posts_topic(), {:post_created, post})
   end
 
+  # Broadcast when a user joins a check-in post
+  def broadcast_checkin_joined(post) do
+    PubSub.broadcast(@pubsub, posts_topic(), {:checkin_joined, post})
+  end
+
+  # Broadcast when a check-in post is full
+  def broadcast_checkin_full(post) do
+    PubSub.broadcast(@pubsub, posts_topic(), {:checkin_full, post})
+  end
+
   # Broadcast when a comment is added
   def broadcast_comment_added(comment) do
     PubSub.broadcast(@pubsub, posts_topic(), {:comment_added, comment})
@@ -148,6 +158,146 @@ defmodule YoungvisionPlatform.Community do
       error ->
         error
     end
+  end
+
+  @doc """
+  Creates a check-in post for duade or triade.
+
+  ## Examples
+
+      iex> create_checkin_post(user, "duade", %{title: "Looking for a duade", content: "Anyone want to join?"})  
+      {:ok, %Post{}}
+
+  """
+  def create_checkin_post(user, checkin_type, attrs \\ %{}) do
+    # Set the max participants based on checkin_type
+    max_participants = case checkin_type do
+      "duade" -> 2
+      "triade" -> 3
+      _ -> 0
+    end
+
+    # Add the initial participant (the creator)
+    initial_participant = %{
+      "user_id" => user.id,
+      "display_name" => user.display_name,
+      "joined_at" => NaiveDateTime.to_string(NaiveDateTime.utc_now())
+    }
+
+    # Merge the checkin attributes with the provided attributes
+    checkin_attrs = Map.merge(attrs, %{
+      "user_id" => user.id,
+      "post_type" => "checkin",
+      "checkin_type" => checkin_type,
+      "max_participants" => max_participants,
+      "participants" => [initial_participant],
+      "is_full" => max_participants == 1 # If max_participants is 1, it's already full
+    })
+
+    %Post{}
+    |> Post.changeset(checkin_attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, post} ->
+        post = Repo.preload(post, [:user])
+        broadcast_post_created(post)
+        {:ok, post}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Joins a check-in post. If the post becomes full after joining, it will be marked as full.
+
+  ## Examples
+
+      iex> join_checkin_post(user, post)
+      {:ok, %Post{}}
+
+      iex> join_checkin_post(user, post)
+      {:error, :already_joined}
+
+      iex> join_checkin_post(user, post)
+      {:error, :post_full}
+
+  """
+  def join_checkin_post(user, %Post{post_type: "checkin"} = post) do
+    # Check if the post is already full
+    if post.is_full do
+      {:error, :post_full}
+    else
+      # Check if the user has already joined
+      if Enum.any?(post.participants, fn p -> p["user_id"] == user.id end) do
+        {:error, :already_joined}
+      else
+        # Add the user to the participants
+        new_participant = %{
+          "user_id" => user.id,
+          "display_name" => user.display_name,
+          "joined_at" => NaiveDateTime.to_string(NaiveDateTime.utc_now())
+        }
+        
+        updated_participants = post.participants ++ [new_participant]
+        
+        # Check if the post will be full after this join
+        will_be_full = length(updated_participants) >= post.max_participants
+        
+        # Update the post
+        post
+        |> Post.changeset(%{
+          "participants" => updated_participants,
+          "is_full" => will_be_full
+        })
+        |> Repo.update()
+        |> case do
+          {:ok, updated_post} ->
+            updated_post = Repo.preload(updated_post, [:user])
+            broadcast_checkin_joined(updated_post)
+            
+            # If the post is now full, broadcast that as well
+            if will_be_full do
+              broadcast_checkin_full(updated_post)
+            end
+            
+            {:ok, updated_post}
+            
+          error ->
+            error
+        end
+      end
+    end
+  end
+  
+  # For non-checkin posts, return an error
+  def join_checkin_post(_user, _post), do: {:error, :not_a_checkin_post}
+
+  @doc """
+  Lists check-in posts that are not full.
+
+  ## Examples
+
+      iex> list_available_checkin_posts()
+      [%Post{}, ...]
+
+  """
+  def list_available_checkin_posts(current_user \\ nil) do
+    query = from p in Post,
+      where: p.post_type == "checkin" and p.is_full == false,
+      order_by: [desc: p.inserted_at]
+
+    # If a user is provided, filter out posts from groups the user is not a member of
+    query = if current_user do
+      from p in query,
+        left_join: gm in "group_memberships",
+        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+        where: is_nil(p.group_id) or not is_nil(gm.id)
+    else
+      query
+    end
+
+    Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
 
   @doc """
