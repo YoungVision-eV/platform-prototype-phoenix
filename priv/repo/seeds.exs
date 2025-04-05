@@ -390,6 +390,8 @@ case Repo.get_by(Event, id: 1) do
       description:
         "Join us for a hands-on workshop about sustainable living practices. We'll cover topics like reducing waste, energy conservation, and sustainable food choices. Bring a notebook and your enthusiasm!",
       location: "EcoHub Berlin, Prenzlauer Berg",
+      latitude: 52.5420,
+      longitude: 13.4130,
       start_time: current_month |> Date.add(10) |> DateTime.new!(~T[14:00:00], "Etc/UTC"),
       end_time: current_month |> Date.add(10) |> DateTime.new!(~T[17:00:00], "Etc/UTC"),
       user_id: jonas.id
@@ -408,6 +410,8 @@ case Repo.get_by(Event, id: 2) do
       description:
         "An evening of networking and knowledge sharing for young professionals interested in sustainability and social impact. Light refreshments will be provided.",
       location: "Impact Hub Munich, Goetheplatz 8",
+      latitude: 48.1291,
+      longitude: 11.5542,
       start_time: current_month |> Date.add(15) |> DateTime.new!(~T[18:30:00], "Etc/UTC"),
       end_time: current_month |> Date.add(15) |> DateTime.new!(~T[21:00:00], "Etc/UTC"),
       user_id: maria.id
@@ -426,6 +430,8 @@ case Repo.get_by(Event, id: 3) do
       description:
         "Help us maintain and expand our community garden! No experience necessary, tools and guidance will be provided. This is a great opportunity to learn about urban gardening while making a positive impact in our community.",
       location: "Stadtgarten Hamburg, Altona",
+      latitude: 53.5511,
+      longitude: 9.9937,
       start_time: current_month |> Date.add(20) |> DateTime.new!(~T[10:00:00], "Etc/UTC"),
       end_time: current_month |> Date.add(20) |> DateTime.new!(~T[14:00:00], "Etc/UTC"),
       user_id: thomas.id
@@ -444,6 +450,8 @@ case Repo.get_by(Event, id: 4) do
       description:
         "This month we're discussing 'Braiding Sweetgrass' by Robin Wall Kimmerer. Join us even if you haven't finished the book - we welcome all perspectives and levels of participation.",
       location: "Buchhandlung Ludwig, Cologne",
+      latitude: 50.9375,
+      longitude: 6.9603,
       start_time: current_month |> Date.add(25) |> DateTime.new!(~T[19:00:00], "Etc/UTC"),
       end_time: current_month |> Date.add(25) |> DateTime.new!(~T[21:00:00], "Etc/UTC"),
       user_id: lisa.id
@@ -464,6 +472,8 @@ case Repo.get_by(Event, id: 5) do
       description:
         "Our biggest event of the year! Join us for a day of workshops, discussions, and community building. We'll have speakers from various environmental and social justice organizations, interactive sessions, and plenty of opportunities to connect with like-minded individuals.",
       location: "Kulturzentrum, Berlin Mitte",
+      latitude: 52.5200,
+      longitude: 13.4050,
       start_time: next_month |> Date.add(5) |> DateTime.new!(~T[09:00:00], "Etc/UTC"),
       end_time: next_month |> Date.add(5) |> DateTime.new!(~T[18:00:00], "Etc/UTC"),
       user_id: jonas.id
@@ -485,6 +495,8 @@ case Repo.get_by(Event, id: 6) do
       description:
         "Join us for our annual building week where we'll work together to build and renovate community spaces. This is a great opportunity to learn practical skills, connect with other community members, and make a tangible impact. All skill levels are welcome - we have tasks for everyone!",
       location: "Gemeinschaftsgarten, Leipzig",
+      latitude: 51.3397,
+      longitude: 12.3731,
       start_time: may_2025 |> DateTime.new!(~T[09:00:00], "Etc/UTC"),
       end_time: may_2025 |> Date.add(3) |> DateTime.new!(~T[18:00:00], "Etc/UTC"),
       user_id: thomas.id
