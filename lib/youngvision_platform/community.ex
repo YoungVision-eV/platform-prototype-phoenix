@@ -59,23 +59,16 @@ defmodule YoungvisionPlatform.Community do
       [%Post{}, ...]
 
   """
-  def list_posts(current_user \\ nil) do
+  def list_posts(current_user) do
+    # If a user is provided, filter out posts from groups the user is not a member of
+    # Join with group_memberships to check if the user is a member of the group
+    # Include posts that don't belong to any group (group_id is nil)
     query =
       from p in Post,
+        left_join: gm in "group_memberships",
+        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+        where: is_nil(p.group_id) or not is_nil(gm.id),
         order_by: [desc: p.inserted_at]
-
-    # If a user is provided, filter out posts from groups the user is not a member of
-    query =
-      if current_user do
-        # Join with group_memberships to check if the user is a member of the group
-        # Include posts that don't belong to any group (group_id is nil)
-        from p in query,
-          left_join: gm in "group_memberships",
-          on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
-          where: is_nil(p.group_id) or not is_nil(gm.id)
-      else
-        query
-      end
 
     Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
@@ -93,22 +86,16 @@ defmodule YoungvisionPlatform.Community do
       [%Post{}, ...]
 
   """
-  def list_posts_by_user(user, current_user \\ nil) do
-    query = from p in Post,
-      where: p.user_id == ^user.id,
-      order_by: [desc: p.inserted_at]
-    
+  def list_posts_by_user(user, current_user) do
     # If current_user is provided, filter out posts from groups the current_user is not a member of
-    query = if current_user do
-      # Join with group_memberships to check if the current_user is a member of the group
-      # Include posts that don't belong to any group (group_id is nil)
-      from p in query,
+    # Join with group_memberships to check if the current_user is a member of the group
+    # Include posts that don't belong to any group (group_id is nil)
+    query =
+      from p in Post,
         left_join: gm in "group_memberships",
         on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
-        where: is_nil(p.group_id) or not is_nil(gm.id)
-    else
-      query
-    end
+        where: p.user_id == ^user.id and (is_nil(p.group_id) or not is_nil(gm.id)),
+        order_by: [desc: p.inserted_at]
 
     Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
@@ -133,7 +120,7 @@ defmodule YoungvisionPlatform.Community do
       ** (Ecto.NoResultsError)
 
   """
-  def get_post!(id, current_user \\ nil) do
+  def get_post!(id, current_user) do
     post =
       Repo.get!(Post, id) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
 
@@ -184,7 +171,7 @@ defmodule YoungvisionPlatform.Community do
 
   ## Examples
 
-      iex> create_checkin_post(user, "duade", %{title: "Looking for a duade", content: "Anyone want to join?"})  
+      iex> create_checkin_post(user, "duade", %{title: "Looking for a duade", content: "Anyone want to join?"})
       {:ok, %Post{}}
 
   """
@@ -304,22 +291,16 @@ defmodule YoungvisionPlatform.Community do
       [%Post{}, ...]
 
   """
-  def list_available_checkin_posts(current_user \\ nil) do
-    query =
-      from p in Post,
-        where: p.post_type == "checkin" and p.is_full == false,
-        order_by: [desc: p.inserted_at]
-
+  def list_available_checkin_posts(current_user) do
     # If a user is provided, filter out posts from groups the user is not a member of
     query =
-      if current_user do
-        from p in query,
-          left_join: gm in "group_memberships",
-          on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
-          where: is_nil(p.group_id) or not is_nil(gm.id)
-      else
-        query
-      end
+      from p in Post,
+        left_join: gm in "group_memberships",
+        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+        where:
+          p.post_type == "checkin" and p.is_full == false and
+            (is_nil(p.group_id) or not is_nil(gm.id)),
+        order_by: [desc: p.inserted_at]
 
     Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end

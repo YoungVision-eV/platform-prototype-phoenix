@@ -158,7 +158,7 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
   @impl true
   def handle_event("add-reaction", %{"post_id" => post_id, "emoji" => emoji}, socket) do
-    post = Community.get_post!(post_id)
+    post = Community.get_post!(post_id, socket.assigns.current_user)
 
     case Community.toggle_reaction(socket.assigns.current_user, post, emoji) do
       {:ok, _status, _reaction} ->

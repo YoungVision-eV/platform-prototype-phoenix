@@ -11,7 +11,7 @@ defmodule YoungvisionPlatformWeb.PostController do
   plug :require_authenticated_user
 
   def index(conn, _params) do
-    posts = Community.list_posts()
+    posts = Community.list_posts(conn.assigns.current_user)
     render(conn, :index, posts: posts)
   end
 
@@ -21,7 +21,6 @@ defmodule YoungvisionPlatformWeb.PostController do
   end
 
   def create(conn, %{"post" => post_params}) do
-    # Get the current user from the connection
     current_user = conn.assigns.current_user
 
     case Community.create_post(current_user, post_params) do
@@ -36,13 +35,13 @@ defmodule YoungvisionPlatformWeb.PostController do
   end
 
   def show(conn, %{"id" => id}) do
-    post = Community.get_post!(id)
+    post = Community.get_post!(id, conn.assigns.current_user)
     comment_changeset = Community.change_comment(%Comment{})
     render(conn, :show, post: post, comment_changeset: comment_changeset)
   end
 
   def add_comment(conn, %{"post_id" => post_id, "comment" => comment_params}) do
-    post = Community.get_post!(post_id)
+    post = Community.get_post!(post_id, conn.assigns.current_user)
     current_user = conn.assigns.current_user
 
     case Community.create_comment(current_user, post, comment_params) do
@@ -57,7 +56,7 @@ defmodule YoungvisionPlatformWeb.PostController do
   end
 
   def toggle_reaction(conn, %{"post_id" => post_id, "emoji" => emoji}) do
-    post = Community.get_post!(post_id)
+    post = Community.get_post!(post_id, conn.assigns.current_user)
     current_user = conn.assigns.current_user
 
     case Community.toggle_reaction(current_user, post, emoji) do

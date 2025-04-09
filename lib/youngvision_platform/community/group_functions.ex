@@ -69,10 +69,10 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
   """
   def get_group_with_posts!(id, current_user \\ nil) do
     group = Repo.get!(Group, id) |> Repo.preload(:users)
-    
+
     # Get posts for this group, filtered by current user membership if provided
     posts = list_group_posts(group, current_user)
-    
+
     # Manually set the posts association
     %{group | posts: posts}
   end
