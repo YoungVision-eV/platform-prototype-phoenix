@@ -52,15 +52,26 @@
           <div class="space-y-6">
             <%= for post <- @posts do %>
               <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                <.link
-                  navigate={~p"/posts/#{post.id}"}
-                  class="text-lg font-medium text-orange-600 hover:text-orange-700"
-                >
-                  {post.title}
-                </.link>
-                <p class="text-gray-600 text-sm mt-1">
-                  Posted {Calendar.strftime(post.inserted_at, "%B %d, %Y")}
-                </p>
+                <div class="flex justify-between items-center">
+                  <div>
+                    <.link
+                      href={~p"/posts/#{post.id}"}
+                      class="text-lg font-medium text-orange-600"
+                    >
+                      {post.title}
+                    </.link>
+                    <%= if post.group do %>
+                      <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        <.link navigate={~p"/groups/#{post.group.id}"} class="hover:underline">
+                          Group: {post.group.name}
+                        </.link>
+                      </span>
+                    <% end %>
+                  </div>
+                  <p class="text-gray-600 text-sm mt-1">
+                    Posted {Calendar.strftime(post.inserted_at, "%B %d, %Y")}
+                  </p>
+                </div>
                 <p class="text-gray-700 mt-2 line-clamp-3">{post.content}</p>
                 <div class="mt-2 flex items-center space-x-4 text-sm text-gray-500">
                   <span>{length(post.comments)} comments</span>
