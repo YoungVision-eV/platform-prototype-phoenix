@@ -17,16 +17,15 @@ defmodule YoungvisionPlatformWeb.Router do
     plug :accepts, ["json"]
   end
 
+  scope "/health", YoungvisionPlatformWeb do
+    get "/", HealthController, :index
+  end
+
   scope "/", YoungvisionPlatformWeb do
     pipe_through :browser
 
     get "/", PageController, :home
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", YoungvisionPlatformWeb do
-  #   pipe_through :api
-  # end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:youngvision_platform, :dev_routes) do
