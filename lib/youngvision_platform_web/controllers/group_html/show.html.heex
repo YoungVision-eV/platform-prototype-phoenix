@@ -129,19 +129,22 @@
         </div>
       <% end %>
 
-      <%= if Enum.empty?(@group.posts) do %>
+      <%= if @is_member and Enum.empty?(@group.posts) do %>
         <div class="text-center py-8 bg-white shadow overflow-hidden sm:rounded-md">
           <p class="text-gray-500">No posts in this group yet.</p>
-          <%= if @is_member do %>
-            <div class="mt-4">
-              <.link
-                href={~p"/posts/new?group_id=#{@group.id}"}
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
-              >
-                Create the first post
-              </.link>
-            </div>
-          <% end %>
+          <div class="mt-4">
+            <.link
+              href={~p"/posts/new?group_id=#{@group.id}"}
+              class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand hover:bg-brand/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand"
+            >
+              Create the first post
+            </.link>
+          </div>
+        </div>
+      <% end %>
+      <%= if !@is_member do %>
+        <div class="text-center py-8 bg-white shadow overflow-hidden sm:rounded-md">
+          <p class="text-gray-500">You are not a member of this group.</p>
         </div>
       <% end %>
     </div>

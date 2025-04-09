@@ -67,13 +67,11 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
       %Group{users: [%User{}, ...], posts: [%Post{}, ...]}
 
   """
-  def get_group_with_posts!(id, current_user \\ nil) do
+  def get_group_with_posts!(id, current_user) do
     group = Repo.get!(Group, id) |> Repo.preload(:users)
 
-    # Get posts for this group, filtered by current user membership if provided
     posts = list_group_posts(group, current_user)
 
-    # Manually set the posts association
     %{group | posts: posts}
   end
 
@@ -83,29 +81,22 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
   If the user is not a member, it will return an empty list.
 
   ## Examples
-
-      iex> list_group_posts(group)
-      [%Post{}, ...]
-
       iex> list_group_posts(group, current_user)
       [%Post{}, ...]
 
   """
-  def list_group_posts(%Group{} = group, current_user \\ nil) do
+  def list_group_posts(%Group{} = group, current_user) do
     import Ecto.Query
 
-    # If current_user is provided, check if they are a member of the group
-    if current_user && !is_member?(current_user.id, group.id) do
-      # If the user is not a member of the group, return an empty list
-      []
-    else
-      # If no user is provided or the user is a member, return the posts
+    if is_member?(current_user.id, group.id) do
       Repo.all(
         from p in YoungvisionPlatform.Community.Post,
           where: p.group_id == ^group.id,
           order_by: [desc: p.inserted_at],
           preload: [:user, :group, comments: [:user], reactions: [:user]]
       )
+    else
+      []
     end
   end
 

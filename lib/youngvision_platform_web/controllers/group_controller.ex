@@ -28,7 +28,7 @@ defmodule YoungvisionPlatformWeb.GroupController do
 
   def show(conn, %{"id" => id}) do
     current_user = conn.assigns.current_user
-    group = Community.get_group_with_posts!(id)
+    group = Community.get_group_with_posts!(id, current_user)
     is_member = if current_user, do: Community.is_user_in_group?(current_user, group), else: false
 
     render(conn, :show, group: group, is_member: is_member)
