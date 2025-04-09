@@ -60,7 +60,7 @@
                           other_user
                         )
                       }
-                      alt="#{other_user.display_name}'s profile picture"
+                      alt={other_user.display_name}
                       class="w-full h-full object-cover"
                     />
                   </div>
@@ -124,7 +124,7 @@
                   @selected_conversation
                 )
               }
-              alt="#{@selected_conversation.display_name}'s profile picture"
+              alt={@selected_conversation.display_name}
               class="w-full h-full object-cover"
             />
           </div>
@@ -158,7 +158,7 @@
                         message.sender
                       )
                     }
-                    alt="#{message.sender.display_name}'s profile picture"
+                    alt={message.sender.display_name}
                     class="w-full h-full object-cover"
                   />
                 </div>
@@ -253,7 +253,7 @@
                     src={
                       YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(user)
                     }
-                    alt="#{user.display_name}'s profile picture"
+                    alt={user.display_name}
                     class="w-full h-full object-cover"
                   />
                 </div>

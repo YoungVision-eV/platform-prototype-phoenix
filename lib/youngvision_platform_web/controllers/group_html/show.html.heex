@@ -59,13 +59,15 @@
             <div class="flex items-center">
               <div class="flex-shrink-0">
                 <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                  <%= if post.user.profile_picture do %>
-                    <img src={post.user.profile_picture} alt="" class="h-10 w-10 rounded-full" />
-                  <% else %>
-                    <span class="text-gray-500 font-medium">
-                      {String.first(post.user.display_name)}
-                    </span>
-                  <% end %>
+                  <img
+                    src={
+                      YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(
+                        post.user
+                      )
+                    }
+                    alt={post.user.display_name}
+                    class="h-10 w-10 rounded-full"
+                  />
                 </div>
               </div>
               <div class="ml-4">
@@ -160,7 +162,16 @@
         <%= for user <- @group.users do %>
           <li>
             <div class="px-4 py-4 flex items-center sm:px-6">
-              <div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
+              <div class="min-w-0 flex-1 sm:flex sm:space-x-6 sm:items-center">
+                <div class="flex-shrink-0">
+                  <img
+                    src={
+                      YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(user)
+                    }
+                    alt={user.display_name}
+                    class="h-10 w-10 rounded-full"
+                  />
+                </div>
                 <div>
                   <.link
                     navigate={~p"/users/#{user.id}"}

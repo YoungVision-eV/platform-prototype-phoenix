@@ -168,7 +168,7 @@
                           post.user
                         )
                       }
-                      alt="#{post.user.display_name}'s profile picture"
+                      alt={post.user.display_name}
                       class="w-full h-full object-cover"
                     />
                   </div>
@@ -252,7 +252,7 @@
                       post.user
                     )
                   }
-                  alt="#{post.user.display_name}'s profile picture"
+                  alt={post.user.display_name}
                   class="w-full h-full object-cover"
                 />
               </div>
@@ -383,7 +383,7 @@
                           latest_comment.user
                         )
                       }
-                      alt="#{latest_comment.user.display_name}'s profile picture"
+                      alt={latest_comment.user.display_name}
                       class="w-full h-full object-cover"
                     />
                   </div>
@@ -418,7 +418,7 @@
               src={
                 YoungvisionPlatform.Accounts.ProfilePictureHelper.profile_picture_url(@post.user)
               }
-              alt="#{@post.user.display_name}'s profile picture"
+              alt={@post.user.display_name}
               class="w-full h-full object-cover"
             />
           </div>
@@ -546,7 +546,7 @@
                       comment.user
                     )
                   }
-                  alt="#{comment.user.display_name}'s profile picture"
+                  alt={comment.user.display_name}
                   class="w-full h-full object-cover"
                 />
               </div>
