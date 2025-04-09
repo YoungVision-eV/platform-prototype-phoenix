@@ -14,8 +14,8 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
     # Check if this is the current user's profile
     is_current_user = current_user && current_user.id == user.id
 
-    # Get user's posts
-    posts = Community.list_posts_by_user(user)
+    # Get user's posts, filtering out posts from groups the current user is not a member of
+    posts = Community.list_posts_by_user(user, current_user)
 
     {:ok,
      socket

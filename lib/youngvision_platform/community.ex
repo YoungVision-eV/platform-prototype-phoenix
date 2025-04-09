@@ -82,20 +82,35 @@ defmodule YoungvisionPlatform.Community do
 
   @doc """
   Returns the list of posts by a specific user.
+  If current_user is provided, it will filter out posts from groups the current_user is not a member of.
 
   ## Examples
 
       iex> list_posts_by_user(user)
       [%Post{}, ...]
 
+      iex> list_posts_by_user(user, current_user)
+      [%Post{}, ...]
+
   """
-  def list_posts_by_user(user) do
-    Repo.all(
-      from p in Post,
-        where: p.user_id == ^user.id,
-        order_by: [desc: p.inserted_at],
-        preload: [:user, comments: [:user], reactions: [:user]]
-    )
+  def list_posts_by_user(user, current_user \\ nil) do
+    query = from p in Post,
+      where: p.user_id == ^user.id,
+      order_by: [desc: p.inserted_at]
+    
+    # If current_user is provided, filter out posts from groups the current_user is not a member of
+    query = if current_user do
+      # Join with group_memberships to check if the current_user is a member of the group
+      # Include posts that don't belong to any group (group_id is nil)
+      from p in query,
+        left_join: gm in "group_memberships",
+        on: gm.group_id == p.group_id and gm.user_id == ^current_user.id,
+        where: is_nil(p.group_id) or not is_nil(gm.id)
+    else
+      query
+    end
+
+    Repo.all(query) |> Repo.preload([:user, :group, comments: [:user], reactions: [:user]])
   end
 
   @doc """

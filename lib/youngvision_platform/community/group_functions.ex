@@ -54,6 +54,7 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
 
   @doc """
   Gets a single group with its members and posts preloaded.
+  If current_user is provided, it will only include posts that the user has access to.
 
   Raises `Ecto.NoResultsError` if the Group does not exist.
 
@@ -62,30 +63,50 @@ defmodule YoungvisionPlatform.Community.GroupFunctions do
       iex> get_group_with_posts!(123)
       %Group{users: [%User{}, ...], posts: [%Post{}, ...]}
 
+      iex> get_group_with_posts!(123, current_user)
+      %Group{users: [%User{}, ...], posts: [%Post{}, ...]}
+
   """
-  def get_group_with_posts!(id) do
-    Repo.get!(Group, id)
-    |> Repo.preload([:users, posts: [:user, comments: [:user], reactions: [:user]]])
+  def get_group_with_posts!(id, current_user \\ nil) do
+    group = Repo.get!(Group, id) |> Repo.preload(:users)
+    
+    # Get posts for this group, filtered by current user membership if provided
+    posts = list_group_posts(group, current_user)
+    
+    # Manually set the posts association
+    %{group | posts: posts}
   end
 
   @doc """
   Returns the list of posts for a specific group.
+  If current_user is provided, it will check if the user is a member of the group.
+  If the user is not a member, it will return an empty list.
 
   ## Examples
 
       iex> list_group_posts(group)
       [%Post{}, ...]
 
+      iex> list_group_posts(group, current_user)
+      [%Post{}, ...]
+
   """
-  def list_group_posts(%Group{} = group) do
+  def list_group_posts(%Group{} = group, current_user \\ nil) do
     import Ecto.Query
 
-    Repo.all(
-      from p in YoungvisionPlatform.Community.Post,
-        where: p.group_id == ^group.id,
-        order_by: [desc: p.inserted_at],
-        preload: [:user, comments: [:user], reactions: [:user]]
-    )
+    # If current_user is provided, check if they are a member of the group
+    if current_user && !is_member?(current_user.id, group.id) do
+      # If the user is not a member of the group, return an empty list
+      []
+    else
+      # If no user is provided or the user is a member, return the posts
+      Repo.all(
+        from p in YoungvisionPlatform.Community.Post,
+          where: p.group_id == ^group.id,
+          order_by: [desc: p.inserted_at],
+          preload: [:user, :group, comments: [:user], reactions: [:user]]
+      )
+    end
   end
 
   @doc """
