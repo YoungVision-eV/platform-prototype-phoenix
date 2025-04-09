@@ -3,7 +3,6 @@ defmodule YoungvisionPlatformWeb.GroupController do
 
   alias YoungvisionPlatform.Community
   alias YoungvisionPlatform.Community.Group
-  alias YoungvisionPlatform.Accounts
 
   def index(conn, _params) do
     groups = Community.list_groups()

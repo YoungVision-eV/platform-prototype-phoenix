@@ -174,6 +174,28 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     end
   end
 
+  @impl true
+  def handle_event("join-checkin", %{"post_id" => post_id}, socket) do
+    post = Community.get_post!(post_id, socket.assigns.current_user)
+
+    case Community.join_checkin_post(socket.assigns.current_user, post) do
+      {:ok, _updated_post} ->
+        {:noreply, socket |> put_flash(:info, "Successfully joined check-in!")}
+
+      {:error, :already_joined} ->
+        {:noreply, socket |> put_flash(:error, "You've already joined this check-in")}
+
+      {:error, :post_full} ->
+        {:noreply, socket |> put_flash(:error, "This check-in is already full")}
+
+      {:error, :not_a_checkin_post} ->
+        {:noreply, socket |> put_flash(:error, "This is not a check-in post")}
+
+      {:error, _changeset} ->
+        {:noreply, socket |> put_flash(:error, "Error joining check-in")}
+    end
+  end
+
   # Handle broadcast events
   @impl true
   def handle_info({:post_created, post}, socket) do
@@ -316,28 +338,6 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       end
 
     {:noreply, assign(socket, :posts, updated_posts)}
-  end
-
-  @impl true
-  def handle_event("join-checkin", %{"post_id" => post_id}, socket) do
-    post = Community.get_post!(post_id, socket.assigns.current_user)
-
-    case Community.join_checkin_post(socket.assigns.current_user, post) do
-      {:ok, updated_post} ->
-        {:noreply, socket |> put_flash(:info, "Successfully joined check-in!")}
-
-      {:error, :already_joined} ->
-        {:noreply, socket |> put_flash(:error, "You've already joined this check-in")}
-
-      {:error, :post_full} ->
-        {:noreply, socket |> put_flash(:error, "This check-in is already full")}
-
-      {:error, :not_a_checkin_post} ->
-        {:noreply, socket |> put_flash(:error, "This is not a check-in post")}
-
-      {:error, _changeset} ->
-        {:noreply, socket |> put_flash(:error, "Error joining check-in")}
-    end
   end
 
   @impl true

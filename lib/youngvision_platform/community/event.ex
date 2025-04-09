@@ -45,19 +45,12 @@ defmodule YoungvisionPlatform.Community.Event do
     |> validate_location()
   end
 
-  @doc """
-  Validates the location and updates latitude and longitude if location is changed.
-  """
   defp validate_location(changeset) do
     changeset
     |> validate_length(:location, max: 255)
     |> maybe_update_coordinates()
   end
 
-  @doc """
-  Updates latitude and longitude if location is changed.
-  Uses the Nominatim geocoding service to get coordinates for the location.
-  """
   defp maybe_update_coordinates(changeset) do
     case get_change(changeset, :location) do
       nil ->

@@ -89,7 +89,6 @@ defmodule YoungvisionPlatformWeb.Router do
       live "/messages/:id", MessagingLive, :show
 
       # Posts routes with LiveView for real-time updates
-      live "/", PostsLive, :index
       live "/posts", PostsLive, :index
       live "/posts/new", PostsLive, :new
       live "/posts/:id", PostsLive, :show

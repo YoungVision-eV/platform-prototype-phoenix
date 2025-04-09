@@ -3,7 +3,6 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
 
   alias YoungvisionPlatform.Accounts
   alias YoungvisionPlatform.Community
-  alias YoungvisionPlatform.Accounts.ProfilePictureHelper
 
   @impl true
   def mount(%{"id" => id}, _session, socket) do
@@ -94,7 +93,7 @@ defmodule YoungvisionPlatformWeb.UserProfileLive do
             # No new upload, keep existing profile picture
             profile_params
 
-          entries ->
+          _entries ->
             # Process the uploaded file(s)
             uploaded_filename =
               consume_uploaded_entries(socket, :profile_picture, fn %{path: path}, entry ->
