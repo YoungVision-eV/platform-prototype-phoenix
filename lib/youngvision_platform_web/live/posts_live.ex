@@ -37,7 +37,10 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       cursors =
         Presence.list(@presence_topic)
         |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
-        |> Enum.reject(&is_nil(&1)) # Remove nil entries if a user has no metas (edge case)
+        |> Enum.reject(&is_nil(&1)) # Remove nil entries
+
+      # Push initial cursor data to the hook
+      socket = push_event(socket, "update_cursors", %{cursors: cursors})
 
       # Make sure posts are properly preloaded with all associations
       # Pass the current user to filter out posts from groups the user is not a member of
@@ -442,7 +445,12 @@ defmodule YoungvisionPlatformWeb.PostsLive do
       |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
       |> Enum.reject(&is_nil(&1)) # Remove nil entries
 
-    {:noreply, assign(socket, :cursors, updated_cursors)} # Assign the FLATTENED list
+    # Push updated cursor data to the hook
+    socket = push_event(socket, "update_cursors", %{cursors: updated_cursors})
+
+    {:noreply,
+     socket
+     |> assign(:cursors, updated_cursors)}
   end
 
   # Catch-all for other info messages

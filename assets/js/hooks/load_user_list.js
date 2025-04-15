@@ -1,13 +1,11 @@
 const LoadUserList = {
   mounted() {
-    console.log("LoadUserList hook mounted");
     this.pushEvent("load-user-list", {});
     
     this.handleSearch();
   },
   
   updated() {
-    console.log("LoadUserList hook updated");
     this.handleSearch();
   },
   
