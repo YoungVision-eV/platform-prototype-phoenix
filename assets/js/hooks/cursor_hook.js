@@ -4,15 +4,22 @@ const CursorHook = {
   perfectCursors: {},
   cursorElements: {},
 
+  throttleTimeout: null,
+
   mounted() {
     this.perfectCursors = {};
     this.cursorElements = {};
-    console.log("CursorHook mounted on", this.el);
 
     const handleMouseMove = (e) => {
+      if (this.throttleTimeout) {
+        return;
+      }
       const x = e.pageX;
       const y = e.pageY;
       this.pushEvent('cursor_move', { x, y });
+      this.throttleTimeout = setTimeout(() => {
+        this.throttleTimeout = null;
+      }, 50);
     };
 
     this.boundMouseMove = handleMouseMove.bind(this);
@@ -39,8 +46,8 @@ const CursorHook = {
         if (el) {
           if (!pc) {
             const cursorElement = el;
-            pc = new PerfectCursor((point) => {
-              cursorElement.style.transform = `translate(${point.x}px, ${point.y}px)`;
+            pc = new PerfectCursor(([x, y]) => {
+              cursorElement.style.setProperty("transform", `translate(${x}px, ${y}px)`);
             });
             this.perfectCursors[user_id] = pc;
           }
@@ -65,7 +72,6 @@ const CursorHook = {
     Object.values(this.perfectCursors).forEach(pc => pc.dispose());
     this.perfectCursors = {};
     this.cursorElements = {};
-    console.log("CursorHook destroyed");
   },
 };
 
