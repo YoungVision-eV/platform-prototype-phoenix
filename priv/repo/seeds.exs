@@ -142,6 +142,24 @@ post4 =
       existing
   end
 
+triade1 =
+  case Repo.get_by(Post, id: 5) do
+    nil ->
+      Repo.insert!(%Post{
+        id: 5,
+        title: "Looking for coffee triade",
+        content:
+          "I'm looking for a triade to have coffee with each sunday morning. Let me know if you're interested! We'll discuss coffee bean, roasting, grinding and brewing over drinking a fresh cup together.",
+        user_id: lisa.id,
+        checkin_type: "triade",
+        post_type: "checkin",
+        max_participants: 3
+      })
+
+    existing ->
+      existing
+  end
+
 # Create sample comments
 alias YoungvisionPlatform.Community.Comment
 
