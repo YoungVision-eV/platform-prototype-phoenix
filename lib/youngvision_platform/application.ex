@@ -13,6 +13,8 @@ defmodule YoungvisionPlatform.Application do
       {DNSCluster,
        query: Application.get_env(:youngvision_platform, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: YoungvisionPlatform.PubSub},
+      # Start the Presence tracker
+      YoungvisionPlatform.Presence,
       # Start the Finch HTTP client for sending emails
       {Finch, name: YoungvisionPlatform.Finch},
       # Start a worker by calling: YoungvisionPlatform.Worker.start_link(arg)

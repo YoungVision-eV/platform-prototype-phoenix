@@ -2,6 +2,9 @@ defmodule YoungvisionPlatformWeb.PostsLive do
   use YoungvisionPlatformWeb, :live_view
 
   alias YoungvisionPlatform.Community
+  alias YoungvisionPlatform.Presence
+
+  @presence_topic "posts:cursors"
 
   @impl true
   def mount(params, _session, socket) do
@@ -9,10 +12,32 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     current_user = Map.get(socket.assigns, :current_user)
 
     if current_user do
-      # Subscribe to post updates when the LiveView connects
+      # Subscribe to post updates and presence when the LiveView connects
       if connected?(socket) do
         Community.subscribe_to_posts()
+        YoungvisionPlatformWeb.Endpoint.subscribe(@presence_topic)
+
+        # Track the user - assuming current_user has :id and :email
+        initials =
+          current_user.email
+          |> String.split("@")
+          |> hd()
+          |> String.slice(0..1)
+          |> String.upcase()
+
+        Presence.track(self(), @presence_topic, current_user.id, %{
+          user_id: current_user.id,
+          initials: initials,
+          x: 0,
+          y: 0
+        })
       end
+
+      # Fetch initial presence list and flatten it
+      cursors =
+        Presence.list(@presence_topic)
+        |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
+        |> Enum.reject(&is_nil(&1)) # Remove nil entries if a user has no metas (edge case)
 
       # Make sure posts are properly preloaded with all associations
       # Pass the current user to filter out posts from groups the user is not a member of
@@ -30,7 +55,8 @@ defmodule YoungvisionPlatformWeb.PostsLive do
        |> assign(:available_checkins, available_checkins)
        |> assign(:post, nil)
        |> assign(:group_id, params["group_id"])
-       |> assign(:comment_form, to_form(%{"content" => ""}))}
+       |> assign(:comment_form, to_form(%{"content" => ""}))
+       |> assign(:cursors, cursors)}
     else
       {:ok, redirect(socket, to: ~p"/users/log_in")}
     end
@@ -136,6 +162,20 @@ defmodule YoungvisionPlatformWeb.PostsLive do
              |> assign(:changeset, changeset)}
         end
     end
+  end
+
+  @impl true
+  def handle_event("cursor_move", %{"x" => x, "y" => y}, socket) do
+    current_user = socket.assigns.current_user
+    # Fetch existing metadata to merge with new position
+    metadata =
+      Presence.get_by_key(@presence_topic, current_user.id) |> Map.get(:metas) |> List.first() ||
+        %{}
+
+    updated_metadata = Map.merge(metadata, %{x: x, y: y})
+
+    Presence.update(self(), @presence_topic, current_user.id, updated_metadata)
+    {:noreply, socket}
   end
 
   @impl true
@@ -392,4 +432,19 @@ defmodule YoungvisionPlatformWeb.PostsLive do
      |> assign(:posts, updated_posts)
      |> assign(:available_checkins, updated_checkins)}
   end
+
+  @impl true
+  # Ignore diff payload, match only on event and topic
+  def handle_info(%{event: "presence_diff", topic: @presence_topic}, socket) do 
+    # Fetch the full list and flatten it
+    updated_cursors =
+      Presence.list(@presence_topic)
+      |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
+      |> Enum.reject(&is_nil(&1)) # Remove nil entries
+
+    {:noreply, assign(socket, :cursors, updated_cursors)} # Assign the FLATTENED list
+  end
+
+  # Catch-all for other info messages
+  def handle_info(_, socket), do: {:noreply, socket}
 end

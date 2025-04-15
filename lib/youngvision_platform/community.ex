@@ -200,7 +200,7 @@ defmodule YoungvisionPlatform.Community do
         "max_participants" => max_participants,
         "participants" => [initial_participant],
         # If max_participants is 1, it's already full
-        "is_full" => max_participants == 1
+        "is_full" => max_participants <= 1
       })
 
     %Post{}
