@@ -14,6 +14,11 @@ const CursorHook = {
       if (this.throttleTimeout) {
         return;
       }
+      // TODO: this depends on the size of the window
+      // but pure relative positions don't take scrolling fiully into account
+      // maybe we can calculate the position relative to elements like buttons, etc.
+      // this way we can have a position that more closely reflects what the other users
+      // are currently doing (i.e. clicking a button, hovering over text, ...)
       const x = e.pageX;
       const y = e.pageY;
       this.pushEvent('cursor_move', { x, y });

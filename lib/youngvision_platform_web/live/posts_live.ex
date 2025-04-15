@@ -8,61 +8,56 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
   @impl true
   def mount(params, _session, socket) do
-    # Check if current_user is in the assigns
-    current_user = Map.get(socket.assigns, :current_user)
+    current_user = socket.assigns.current_user
 
-    if current_user do
-      # Subscribe to post updates and presence when the LiveView connects
-      if connected?(socket) do
-        Community.subscribe_to_posts()
-        YoungvisionPlatformWeb.Endpoint.subscribe(@presence_topic)
+    Community.subscribe_to_posts()
+    YoungvisionPlatformWeb.Endpoint.subscribe(@presence_topic)
 
-        # Track the user - assuming current_user has :id and :email
-        initials =
-          current_user.email
-          |> String.split("@")
-          |> hd()
-          |> String.slice(0..1)
-          |> String.upcase()
+    # Track the user - assuming current_user has :id and :email
+    initials =
+      current_user.email
+      |> String.split("@")
+      |> hd()
+      |> String.slice(0..1)
+      |> String.upcase()
 
-        Presence.track(self(), @presence_topic, current_user.id, %{
-          user_id: current_user.id,
-          initials: initials,
-          x: 0,
-          y: 0
-        })
-      end
+    Presence.track(self(), @presence_topic, current_user.id, %{
+      user_id: current_user.id,
+      initials: initials,
+      x: 0,
+      y: 0
+    })
 
-      # Fetch initial presence list and flatten it
-      cursors =
-        Presence.list(@presence_topic)
-        |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
-        |> Enum.reject(&is_nil(&1)) # Remove nil entries
+    # Fetch initial presence list and flatten it
+    cursors =
+      Presence.list(@presence_topic)
+      # assume the last meta is the currently online one
+      |> Enum.map(fn {_, data} -> data[:metas] |> List.last() end)
+      # Remove nil entries
+      |> Enum.reject(&is_nil(&1))
+      |> Enum.reject(fn cursor -> cursor.user_id == current_user.id end)
 
-      # Push initial cursor data to the hook
-      socket = push_event(socket, "update_cursors", %{cursors: cursors})
+    # Push initial cursor data to the hook
+    socket = push_event(socket, "update_cursors", %{cursors: cursors})
 
-      # Make sure posts are properly preloaded with all associations
-      # Pass the current user to filter out posts from groups the user is not a member of
-      all_posts = Community.list_posts(current_user)
+    # Make sure posts are properly preloaded with all associations
+    # Pass the current user to filter out posts from groups the user is not a member of
+    all_posts = Community.list_posts(current_user)
 
-      # Get available check-in posts
-      available_checkins = Community.list_available_checkin_posts(current_user)
+    # Get available check-in posts
+    available_checkins = Community.list_available_checkin_posts(current_user)
 
-      # Filter out check-in posts from the regular posts list to avoid duplication
-      regular_posts = Enum.filter(all_posts, fn post -> post.post_type != "checkin" end)
+    # Filter out check-in posts from the regular posts list to avoid duplication
+    regular_posts = Enum.filter(all_posts, fn post -> post.post_type != "checkin" end)
 
-      {:ok,
-       socket
-       |> assign(:posts, regular_posts)
-       |> assign(:available_checkins, available_checkins)
-       |> assign(:post, nil)
-       |> assign(:group_id, params["group_id"])
-       |> assign(:comment_form, to_form(%{"content" => ""}))
-       |> assign(:cursors, cursors)}
-    else
-      {:ok, redirect(socket, to: ~p"/users/log_in")}
-    end
+    {:ok,
+     socket
+     |> assign(:posts, regular_posts)
+     |> assign(:available_checkins, available_checkins)
+     |> assign(:post, nil)
+     |> assign(:group_id, params["group_id"])
+     |> assign(:comment_form, to_form(%{"content" => ""}))
+     |> assign(:cursors, cursors)}
   end
 
   @impl true
@@ -172,7 +167,7 @@ defmodule YoungvisionPlatformWeb.PostsLive do
     current_user = socket.assigns.current_user
     # Fetch existing metadata to merge with new position
     metadata =
-      Presence.get_by_key(@presence_topic, current_user.id) |> Map.get(:metas) |> List.first() ||
+      Presence.get_by_key(@presence_topic, current_user.id) |> Map.get(:metas) |> List.last() ||
         %{}
 
     updated_metadata = Map.merge(metadata, %{x: x, y: y})
@@ -438,21 +433,18 @@ defmodule YoungvisionPlatformWeb.PostsLive do
 
   @impl true
   # Ignore diff payload, match only on event and topic
-  def handle_info(%{event: "presence_diff", topic: @presence_topic}, socket) do 
-    # Fetch the full list and flatten it
+  def handle_info(%{event: "presence_diff", topic: @presence_topic}, socket) do
+    current_user = socket.assigns.current_user
+
     updated_cursors =
       Presence.list(@presence_topic)
-      |> Enum.map(fn {_, data} -> data[:metas] |> List.first() end)
-      |> Enum.reject(&is_nil(&1)) # Remove nil entries
-
-    # Push updated cursor data to the hook
-    socket = push_event(socket, "update_cursors", %{cursors: updated_cursors})
+      |> Enum.map(fn {_, data} -> data[:metas] |> List.last() end)
+      |> Enum.reject(&is_nil(&1))
+      |> Enum.reject(fn cursor -> cursor.user_id == current_user.id end)
 
     {:noreply,
      socket
+     |> push_event("update_cursors", %{cursors: updated_cursors})
      |> assign(:cursors, updated_cursors)}
   end
-
-  # Catch-all for other info messages
-  def handle_info(_, socket), do: {:noreply, socket}
 end
