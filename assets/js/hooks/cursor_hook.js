@@ -1,4 +1,4 @@
-import { PerfectCursor } from "perfect-cursors";
+import { PerfectCursor } from "../../vendor/perfect-cursors";
 
 const CursorHook = {
   perfectCursors: {},
